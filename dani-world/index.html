@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🏙️ DANI WORLD</title>
+    <style>
+        body { margin: 0; background: #1a1a2e; font-family: Arial; color: white; }
+        #controls {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; z-index: 100;
+        }
+        .btn {
+            background: #4a9eff; border: none; padding: 10px 20px; margin: 5px;
+            border-radius: 5px; color: white; cursor: pointer;
+        }
+        .btn:hover { background: #6ab0ff; }
+        #city {
+            width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #98D8C8);
+            position: relative;
+        }
+        .building {
+            position: absolute; width: 80px; height: 80px; border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            cursor: pointer; border: 2px solid rgba(255,255,255,0.3);
+        }
+        .home { background: #6BCB77; }
+        .hospital { background: #FF6B6B; }
+        .school { background: #FFD93D; }
+        #info {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h2>🏙️ DANI WORLD</h2>
+        <button class="btn" onclick="addBuilding('home')">🏠 منزل</button>
+        <button class="btn" onclick="addBuilding('hospital')">🏥 بیمارستان</button>
+        <button class="btn" onclick="addBuilding('school')">🏫 مدرسه</button>
+        <button class="btn" style="background:#FF6B6B" onclick="addCharacter()">🦸 شخصیت</button>
+    </div>
+    <div id="city"></div>
+    <div id="info">🏗️ کلیک راست برای ساخت | تعداد: <span id="count">0</span></div>
+
+    <script>
+        let count = 0;
+        const city = document.getElementById('city');
+        const countEl = document.getElementById('count');
+
+        function addBuilding(type) {
+            const labels = { home: '🏠', hospital: '🏥', school: '🏫' };
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 100);
+            
+            const div = document.createElement('div');
+            div.className = `building ${type}`;
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            div.innerHTML = labels[type];
+            div.onclick = () => alert(`🏗️ ${labels[type]}\nساختمان شماره ${count+1}`);
+            
+            city.appendChild(div);
+            count++;
+            countEl.textContent = count;
+        }
+
+        function addCharacter() {
+            const div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            div.style.top = Math.random() * (window.innerHeight - 60) + 'px';
+            div.style.fontSize = '50px';
+            div.innerHTML = '🦸';
+            div.onclick = () => alert('🦸 لیدی‌بگ قهرمان!');
+            city.appendChild(div);
+        }
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const types = ['home', 'hospital', 'school'];
+            addBuilding(types[Math.floor(Math.random() * types.length)]);
+        });
+
+        // چند ساختمان اولیه
+        setTimeout(() => {
+            addBuilding('home');
+            addBuilding('hospital');
+            addBuilding('school');
+        }, 500);
+    </script>
+</body>
+</html>
