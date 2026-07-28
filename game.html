@@ -1,0 +1,1746 @@
+باشه! کد جدید رو برات می‌فرستم که سیستم ذخیره‌سازی خودکار داره.
+
+با این کد، همیشه پیشرفتت حفظ میشه، حتی اگه کد رو عوض کنی یا مرورگر رو ببندی.
+
+---
+
+🎮 کد کامل بازی با سیستم Auto-Save + لود خودکار
+
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏙️ Life City - Simulator</title>
+    <style>
+        /* ===== Reset & Base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* ===== Top Bar ===== */
+        #topBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 30;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        #topBar .title {
+            font-size: 0.9rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #topBar .stats {
+            display: flex;
+            gap: 6px;
+            font-size: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        #topBar .stats span {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .stat-value {
+            color: #ffd200;
+            font-weight: bold;
+        }
+
+        /* ===== Language Switcher ===== */
+        #langBtn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        #langBtn:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== Game Container ===== */
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 45%, #7ec87e 45%, #5da35d 100%);
+            touch-action: none;
+            cursor: default;
+        }
+
+        /* ===== Daily Challenge ===== */
+        #dailyChallenge {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            z-index: 15;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            display: none;
+            text-align: center;
+            max-width: 90%;
+            pointer-events: none;
+        }
+
+        #dailyChallenge .challenge-title {
+            color: #ffd200;
+            font-weight: bold;
+        }
+
+        /* ===== Game Objects ===== */
+        .game-object {
+            position: absolute;
+            cursor: grab;
+            transition: transform 0.1s;
+            touch-action: none;
+            will-change: transform;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            padding: 3px;
+            min-width: 30px;
+            min-height: 30px;
+            pointer-events: auto;
+        }
+
+        .game-object:active {
+            cursor: grabbing;
+        }
+
+        .game-object .obj-emoji {
+            font-size: 28px;
+            pointer-events: none;
+            line-height: 1;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .game-object .obj-label {
+            font-size: 7px;
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1px 4px;
+            border-radius: 6px;
+            margin-top: 1px;
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-object.selected {
+            outline: 2px solid #ffd200;
+            outline-offset: 3px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
+            z-index: 10;
+        }
+
+        /* ===== Level Badge ===== */
+        .level-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ffd200;
+            color: #1a1a2e;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 9px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #1a1a2e;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        /* ===== Mobile Phone Panel ===== */
+        #phonePanel {
+            position: absolute;
+            bottom: 200px;
+            right: 8px;
+            z-index: 18;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            padding: 6px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        #phonePanel button {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        #phonePanel button:active {
+            transform: scale(0.9);
+            background: rgba(255, 215, 0, 0.15);
+        }
+
+        #phonePanel .phone-icon {
+            font-size: 14px;
+        }
+
+        /* ===== Side Menu (Hamburger) ===== */
+        #menuToggle {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            z-index: 25;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 6px 10px;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        #menuToggle:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== Side Menu (Dropdown) ===== */
+        #sideMenu {
+            position: absolute;
+            top: 80px;
+            left: 10px;
+            z-index: 25;
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(14px);
+            border-radius: 16px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 60vh;
+            overflow-y: auto;
+            min-width: 140px;
+        }
+
+        #sideMenu.open {
+            display: flex;
+        }
+
+        #sideMenu .menu-section {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        #sideMenu .menu-section-title {
+            font-size: 0.55rem;
+            color: #888;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 3px;
+            margin-top: 4px;
+        }
+
+        #sideMenu button {
+            background: rgba(255, 255, 255, 0.04);
+            border: none;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+            width: 100%;
+        }
+
+        #sideMenu button:active {
+            transform: scale(0.95);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        #sideMenu button .menu-icon {
+            font-size: 14px;
+        }
+
+        /* ===== Save/Load Buttons ===== */
+        #saveLoadPanel {
+            position: absolute;
+            bottom: 270px;
+            right: 8px;
+            z-index: 18;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        #saveLoadPanel button {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
+
+        #saveLoadPanel button:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== Camera Controls ===== */
+        #cameraControls {
+            position: absolute;
+            bottom: 200px;
+            left: 8px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        #cameraControls button {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
+
+        #cameraControls button:active {
+            transform: scale(0.85);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ===== Delete Indicator ===== */
+        #deleteIndicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px dashed #e74c3c;
+            border-radius: 16px;
+            padding: 15px 30px;
+            color: #e74c3c;
+            font-size: 1rem;
+            z-index: 8;
+            display: none;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ===== Toast ===== */
+        #toast {
+            position: absolute;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            z-index: 35;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 480px) {
+            #topBar .title {
+                font-size: 0.7rem;
+            }
+            #topBar .stats {
+                font-size: 0.5rem;
+                gap: 3px;
+            }
+            #topBar .stats span {
+                padding: 1px 4px;
+            }
+            .game-object .obj-emoji {
+                font-size: 22px;
+            }
+            #phonePanel {
+                bottom: 170px;
+                right: 4px;
+                padding: 4px 6px;
+            }
+            #phonePanel button {
+                font-size: 0.5rem;
+                padding: 2px 6px;
+            }
+            #phonePanel .phone-icon {
+                font-size: 12px;
+            }
+            #saveLoadPanel {
+                bottom: 240px;
+                right: 4px;
+            }
+            #saveLoadPanel button {
+                font-size: 0.5rem;
+                padding: 2px 6px;
+            }
+            #cameraControls {
+                bottom: 170px;
+                left: 4px;
+                padding: 4px;
+            }
+            #cameraControls button {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            #sideMenu {
+                min-width: 110px;
+                padding: 8px 10px;
+                left: 6px;
+                top: 70px;
+            }
+            #sideMenu button {
+                font-size: 0.5rem;
+                padding: 3px 8px;
+            }
+            #sideMenu button .menu-icon {
+                font-size: 12px;
+            }
+            #menuToggle {
+                top: 45px;
+                left: 6px;
+                padding: 4px 8px;
+                font-size: 16px;
+            }
+            #dailyChallenge {
+                font-size: 0.5rem;
+                top: 45px;
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .game-object .obj-emoji {
+                font-size: 18px;
+            }
+            #sideMenu {
+                min-width: 90px;
+            }
+            #sideMenu button {
+                font-size: 0.45rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Top Bar ===== -->
+    <div id="topBar">
+        <div class="title" id="gameTitle">🏙️ Life City</div>
+        <div class="stats">
+            <span>💰 <span class="stat-value" id="moneyDisplay">0</span></span>
+            <span>⭐ <span class="stat-value" id="scoreDisplay">0</span></span>
+            <span>🏆 <span class="stat-value" id="levelDisplay">1</span></span>
+            <span>📅 <span class="stat-value" id="dayDisplay">1</span></span>
+            <button id="langBtn" onclick="toggleLanguage()">🇬🇧 EN</button>
+        </div>
+    </div>
+
+    <!-- ===== Daily Challenge ===== -->
+    <div id="dailyChallenge">
+        <div class="challenge-title" id="challengeTitle">📋 Today's Challenge</div>
+        <div id="challengeText"></div>
+    </div>
+
+    <!-- ===== Game Container ===== -->
+    <div id="gameContainer">
+        <div id="deleteIndicator">🗑️ Click on object to delete</div>
+    </div>
+
+    <!-- ===== Menu Toggle (Hamburger) ===== -->
+    <div id="menuToggle" onclick="toggleMenu()">☰</div>
+
+    <!-- ===== Side Menu ===== -->
+    <div id="sideMenu">
+        <div class="menu-section">
+            <div class="menu-section-title" id="menuBuildings">🏗️ Buildings</div>
+            <button onclick="addObject('home')"><span class="menu-icon">🏠</span> <span id="lblHome">House</span></button>
+            <button onclick="addObject('hospital')"><span class="menu-icon">🏥</span> <span id="lblHospital">Hospital</span></button>
+            <button onclick="addObject('school')"><span class="menu-icon">🏫</span> <span id="lblSchool">School</span></button>
+            <button onclick="addObject('shop')"><span class="menu-icon">🏪</span> <span id="lblShop">Shop</span></button>
+            <button onclick="addObject('restaurant')"><span class="menu-icon">🍽️</span> <span id="lblRestaurant">Restaurant</span></button>
+            <button onclick="addObject('salon')"><span class="menu-icon">💇</span> <span id="lblSalon">Salon</span></button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title" id="menuCharacters">👥 Characters</div>
+            <button onclick="addCharacter('ladybug')"><span class="menu-icon">🐞</span> <span id="lblLadybug">Ladybug</span></button>
+            <button onclick="addCharacter('angel')"><span class="menu-icon">👼</span> <span id="lblAngel">Angel</span></button>
+            <button onclick="addCharacter('devil')"><span class="menu-icon">😈</span> <span id="lblDevil">Devil</span></button>
+            <button onclick="addCharacter('fairy')"><span class="menu-icon">🧚</span> <span id="lblFairy">Fairy</span></button>
+            <button onclick="addCharacter('superman')"><span class="menu-icon">🦸</span> <span id="lblSuperman">Superman</span></button>
+            <button onclick="addCharacter('robot')"><span class="menu-icon">🤖</span> <span id="lblRobot">Robot</span></button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title" id="menuObjects">📦 Objects</div>
+            <button onclick="addObject('tree')"><span class="menu-icon">🌳</span> <span id="lblTree">Tree</span></button>
+            <button onclick="addObject('flower')"><span class="menu-icon">🌸</span> <span id="lblFlower">Flower</span></button>
+            <button onclick="addObject('car')"><span class="menu-icon">🚗</span> <span id="lblCar">Car</span></button>
+            <button onclick="addObject('bench')"><span class="menu-icon">🪑</span> <span id="lblBench">Bench</span></button>
+            <button onclick="addObject('lamp')"><span class="menu-icon">💡</span> <span id="lblLamp">Lamp</span></button>
+            <button onclick="addObject('fountain')"><span class="menu-icon">⛲</span> <span id="lblFountain">Fountain</span></button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title" id="menuDaily">📅 Daily Tasks</div>
+            <button onclick="doTask('school')"><span class="menu-icon">🏫</span> <span id="lblTaskSchool">Go to School</span></button>
+            <button onclick="doTask('shopping')"><span class="menu-icon">🛍️</span> <span id="lblTaskShopping">Shopping</span></button>
+            <button onclick="doTask('family_dinner')"><span class="menu-icon">🍽️</span> <span id="lblTaskFamily">Family Dinner</span></button>
+            <button onclick="doTask('salon')"><span class="menu-icon">💇</span> <span id="lblTaskSalon">Go to Salon</span></button>
+            <button onclick="doTask('restaurant')"><span class="menu-icon">🍽️</span> <span id="lblTaskRestaurant">Restaurant</span></button>
+            <button onclick="doTask('park')"><span class="menu-icon">🌳</span> <span id="lblTaskPark">Visit Park</span></button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title" id="menuTools">🛠️ Tools</div>
+            <button onclick="toggleMoveMode()"><span class="menu-icon">✋</span> <span id="lblMove">Move</span></button>
+            <button onclick="toggleDeleteMode()"><span class="menu-icon">🗑️</span> <span id="lblDelete">Delete</span></button>
+            <button onclick="rotateSelected()"><span class="menu-icon">🔄</span> <span id="lblRotate">Rotate</span></button>
+            <button onclick="clearAll()"><span class="menu-icon">🧹</span> <span id="lblClear">Clear All</span></button>
+            <button onclick="resetDay()"><span class="menu-icon">🔄</span> <span id="lblNewDay">New Day</span></button>
+            <button onclick="showDailyPlan()"><span class="menu-icon">📋</span> <span id="lblPlan">Daily Plan</span></button>
+        </div>
+    </div>
+
+    <!-- ===== Phone Panel ===== -->
+    <div id="phonePanel">
+        <button onclick="callTaxi()"><span class="phone-icon">🚕</span> <span id="lblTaxi">Taxi</span></button>
+        <button onclick="setAlarm()"><span class="phone-icon">⏰</span> <span id="lblAlarm">Alarm</span></button>
+        <button onclick="schoolTime()"><span class="phone-icon">🏫</span> <span id="lblSchoolTime">School Time</span></button>
+        <button onclick="completeDailyTask()"><span class="phone-icon">✅</span> <span id="lblCompleteDay">Complete Day</span></button>
+    </div>
+
+    <!-- ===== Save/Load Panel ===== -->
+    <div id="saveLoadPanel">
+        <button onclick="saveGame()">💾 Save</button>
+        <button onclick="loadGame()">📂 Load</button>
+        <button onclick="resetGame()">🔄 Reset</button>
+    </div>
+
+    <!-- ===== Camera Controls ===== -->
+    <div id="cameraControls">
+        <button onclick="zoomIn()">🔍+</button>
+        <button onclick="zoomOut()">🔍−</button>
+        <button onclick="resetCamera()">🏠</button>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div id="toast"></div>
+
+    <script>
+        // ================================================
+        //  LANGUAGE SYSTEM
+        // ================================================
+        let currentLang = 'fa';
+
+        const translations = {
+            fa: {
+                title: '🏙️ شهر زندگی',
+                challengeTitle: '📋 چالش امروز',
+                menuBuildings: '🏗️ ساختمان‌ها',
+                menuCharacters: '👥 شخصیت‌ها',
+                menuObjects: '📦 اشیاء',
+                menuDaily: '📅 کارهای روزانه',
+                menuTools: '🛠️ ابزارها',
+                lblHome: 'خانه',
+                lblHospital: 'بیمارستان',
+                lblSchool: 'مدرسه',
+                lblShop: 'فروشگاه',
+                lblRestaurant: 'رستوران',
+                lblSalon: 'آرایشگاه',
+                lblLadybug: 'لیدی‌بگ',
+                lblAngel: 'فرشته',
+                lblDevil: 'شیطان',
+                lblFairy: 'پری',
+                lblSuperman: 'سوپرمن',
+                lblRobot: 'ربات',
+                lblTree: 'درخت',
+                lblFlower: 'گل',
+                lblCar: 'ماشین',
+                lblBench: 'نیمکت',
+                lblLamp: 'چراغ',
+                lblFountain: 'آبنما',
+                lblTaskSchool: 'مدرسه رفتن',
+                lblTaskShopping: 'خرید',
+                lblTaskFamily: 'غذا با خانواده',
+                lblTaskSalon: 'آرایشگاه',
+                lblTaskRestaurant: 'رستوران',
+                lblTaskPark: 'پارک',
+                lblMove: 'حرکت',
+                lblDelete: 'حذف',
+                lblRotate: 'چرخش',
+                lblClear: 'پاک‌کردن همه',
+                lblNewDay: 'روز جدید',
+                lblPlan: 'برنامه روزانه',
+                lblTaxi: 'تاکسی',
+                lblAlarm: 'زنگ ساعت',
+                lblSchoolTime: 'ساعت مدرسه',
+                lblCompleteDay: 'انجام روز'
+            },
+            en: {
+                title: '🏙️ Life City',
+                challengeTitle: '📋 Today\'s Challenge',
+                menuBuildings: '🏗️ Buildings',
+                menuCharacters: '👥 Characters',
+                menuObjects: '📦 Objects',
+                menuDaily: '📅 Daily Tasks',
+                menuTools: '🛠️ Tools',
+                lblHome: 'House',
+                lblHospital: 'Hospital',
+                lblSchool: 'School',
+                lblShop: 'Shop',
+                lblRestaurant: 'Restaurant',
+                lblSalon: 'Salon',
+                lblLadybug: 'Ladybug',
+                lblAngel: 'Angel',
+                lblDevil: 'Devil',
+                lblFairy: 'Fairy',
+                lblSuperman: 'Superman',
+                lblRobot: 'Robot',
+                lblTree: 'Tree',
+                lblFlower: 'Flower',
+                lblCar: 'Car',
+                lblBench: 'Bench',
+                lblLamp: 'Lamp',
+                lblFountain: 'Fountain',
+                lblTaskSchool: 'Go to School',
+                lblTaskShopping: 'Shopping',
+                lblTaskFamily: 'Family Dinner',
+                lblTaskSalon: 'Go to Salon',
+                lblTaskRestaurant: 'Restaurant',
+                lblTaskPark: 'Visit Park',
+                lblMove: 'Move',
+                lblDelete: 'Delete',
+                lblRotate: 'Rotate',
+                lblClear: 'Clear All',
+                lblNewDay: 'New Day',
+                lblPlan: 'Daily Plan',
+                lblTaxi: 'Taxi',
+                lblAlarm: 'Alarm',
+                lblSchoolTime: 'School Time',
+                lblCompleteDay: 'Complete Day'
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'fa') ? 'en' : 'fa';
+            const t = translations[currentLang];
+            const btn = document.getElementById('langBtn');
+
+            document.getElementById('gameTitle').textContent = t.title;
+            document.getElementById('challengeTitle').textContent = t.challengeTitle;
+            document.getElementById('menuBuildings').textContent = t.menuBuildings;
+            document.getElementById('menuCharacters').textContent = t.menuCharacters;
+            document.getElementById('menuObjects').textContent = t.menuObjects;
+            document.getElementById('menuDaily').textContent = t.menuDaily;
+            document.getElementById('menuTools').textContent = t.menuTools;
+
+            const labelMap = {
+                lblHome: 'lblHome',
+                lblHospital: 'lblHospital',
+                lblSchool: 'lblSchool',
+                lblShop: 'lblShop',
+                lblRestaurant: 'lblRestaurant',
+                lblSalon: 'lblSalon',
+                lblLadybug: 'lblLadybug',
+                lblAngel: 'lblAngel',
+                lblDevil: 'lblDevil',
+                lblFairy: 'lblFairy',
+                lblSuperman: 'lblSuperman',
+                lblRobot: 'lblRobot',
+                lblTree: 'lblTree',
+                lblFlower: 'lblFlower',
+                lblCar: 'lblCar',
+                lblBench: 'lblBench',
+                lblLamp: 'lblLamp',
+                lblFountain: 'lblFountain',
+                lblTaskSchool: 'lblTaskSchool',
+                lblTaskShopping: 'lblTaskShopping',
+                lblTaskFamily: 'lblTaskFamily',
+                lblTaskSalon: 'lblTaskSalon',
+                lblTaskRestaurant: 'lblTaskRestaurant',
+                lblTaskPark: 'lblTaskPark',
+                lblMove: 'lblMove',
+                lblDelete: 'lblDelete',
+                lblRotate: 'lblRotate',
+                lblClear: 'lblClear',
+                lblNewDay: 'lblNewDay',
+                lblPlan: 'lblPlan',
+                lblTaxi: 'lblTaxi',
+                lblAlarm: 'lblAlarm',
+                lblSchoolTime: 'lblSchoolTime',
+                lblCompleteDay: 'lblCompleteDay'
+            };
+
+            Object.keys(labelMap).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.textContent = t[labelMap[key]];
+            });
+
+            btn.textContent = (currentLang === 'fa') ? '🇬🇧 EN' : '🇮🇷 FA';
+            showToast(currentLang === 'fa' ? '🌍 زبان به فارسی تغییر کرد' : '🌍 Language changed to English', 1000);
+
+            document.documentElement.dir = (currentLang === 'fa') ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+        }
+
+        // ================================================
+        //  GAME SYSTEM
+        // ================================================
+        const container = document.getElementById('gameContainer');
+        const toast = document.getElementById('toast');
+        let objects = [];
+        let objectIdCounter = 0;
+        let selectedObject = null;
+        let isMoveMode = false;
+        let isDeleteMode = false;
+        let dragData = null;
+        let cameraScale = 1;
+        let cameraOffsetX = 0;
+        let cameraOffsetY = 0;
+        let isPanning = false;
+        let panStartX = 0,
+            panStartY = 0;
+        let panStartOffsetX = 0,
+            panStartOffsetY = 0;
+
+        // ===== Game State =====
+        let gameState = {
+            money: 100,
+            score: 0,
+            level: 1,
+            day: 1,
+            tasksDone: [],
+            dailyTasks: [],
+            buildingLevels: {},
+            completedDays: 0
+        };
+
+        const dailyTaskList = [
+            { id: 'school', icon: '🏫', labelFa: 'مدرسه', labelEn: 'School', reward: 20 },
+            { id: 'shopping', icon: '🛍️', labelFa: 'خرید', labelEn: 'Shopping', reward: 15 },
+            { id: 'family_dinner', icon: '🍽️', labelFa: 'غذا با خانواده', labelEn: 'Family Dinner', reward: 25 },
+            { id: 'salon', icon: '💇', labelFa: 'آرایشگاه', labelEn: 'Salon', reward: 10 },
+            { id: 'restaurant', icon: '🍽️', labelFa: 'رستوران', labelEn: 'Restaurant', reward: 20 },
+            { id: 'park', icon: '🌳', labelFa: 'پارک', labelEn: 'Park', reward: 10 }
+        ];
+
+        const challengeList = [
+            { textFa: '۲ خانه جدید بساز', textEn: 'Build 2 new houses', check: () => objects.filter(o => o.objType ===
+                    'home').length >= 2 },
+            { textFa: '۱ درخت بکار', textEn: 'Plant 1 tree', check: () => objects.filter(o => o.objType === 'tree')
+                    .length >= 1 },
+            { textFa: '۳ کار روزانه انجام بده', textEn: 'Complete 3 daily tasks', check: () => gameState.tasksDone
+                    .length >= 3 },
+            { textFa: '۱ شخصیت جدید اضافه کن', textEn: 'Add 1 new character', check: () => objects.filter(o => o.type ===
+                    'character').length >= 1 },
+            { textFa: '۵۰۰ امتیاز جمع کن', textEn: 'Collect 500 points', check: () => gameState.score >= 500 },
+            { textFa: 'همه کارهای روزانه رو انجام بده', textEn: 'Complete all daily tasks', check: () => gameState
+                    .tasksDone.length >= dailyTaskList.length },
+            { textFa: '۱ ساختمان رو به سطح ۳ برسون', textEn: 'Upgrade 1 building to level 3', check: () => Object.values(
+                    gameState.buildingLevels).some(v => v >= 3) },
+            { textFa: '۳ تا ماشین اضافه کن', textEn: 'Add 3 cars', check: () => objects.filter(o => o.objType === 'car')
+                    .length >= 3 },
+        ];
+
+        let currentChallenge = null;
+
+        // ===== Object Database =====
+        const objectData = {
+            home: { emoji: '🏠', labelFa: 'خانه', labelEn: 'House', cat: 'building' },
+            hospital: { emoji: '🏥', labelFa: 'بیمارستان', labelEn: 'Hospital', cat: 'building' },
+            school: { emoji: '🏫', labelFa: 'مدرسه', labelEn: 'School', cat: 'building' },
+            shop: { emoji: '🏪', labelFa: 'فروشگاه', labelEn: 'Shop', cat: 'building' },
+            restaurant: { emoji: '🍽️', labelFa: 'رستوران', labelEn: 'Restaurant', cat: 'building' },
+            salon: { emoji: '💇', labelFa: 'آرایشگاه', labelEn: 'Salon', cat: 'building' },
+            tree: { emoji: '🌳', labelFa: 'درخت', labelEn: 'Tree', cat: 'object' },
+            flower: { emoji: '🌸', labelFa: 'گل', labelEn: 'Flower', cat: 'object' },
+            car: { emoji: '🚗', labelFa: 'ماشین', labelEn: 'Car', cat: 'object' },
+            bench: { emoji: '🪑', labelFa: 'نیمکت', labelEn: 'Bench', cat: 'object' },
+            lamp: { emoji: '💡', labelFa: 'چراغ', labelEn: 'Lamp', cat: 'object' },
+            fountain: { emoji: '⛲', labelFa: 'آبنما', labelEn: 'Fountain', cat: 'object' }
+        };
+
+        const characterData = {
+            ladybug: { emoji: '🐞', labelFa: 'لیدی‌بگ', labelEn: 'Ladybug' },
+            angel: { emoji: '👼', labelFa: 'فرشته', labelEn: 'Angel' },
+            devil: { emoji: '😈', labelFa: 'شیطان', labelEn: 'Devil' },
+            fairy: { emoji: '🧚', labelFa: 'پری', labelEn: 'Fairy' },
+            superman: { emoji: '🦸', labelFa: 'سوپرمن', labelEn: 'Superman' },
+            robot: { emoji: '🤖', labelFa: 'ربات', labelEn: 'Robot' }
+        };
+
+        // ================================================
+        //  SAVE / LOAD SYSTEM
+        // ================================================
+        function saveGame() {
+            try {
+                const data = {
+                    money: gameState.money,
+                    score: gameState.score,
+                    level: gameState.level,
+                    day: gameState.day,
+                    tasksDone: gameState.tasksDone,
+                    buildingLevels: gameState.buildingLevels,
+                    completedDays: gameState.completedDays,
+                    objects: objects.map(o => ({
+                        type: o.type,
+                        objType: o.objType,
+                        x: o.x,
+                        y: o.y,
+                        rotation: o.rotation || 0
+                    }))
+                };
+                localStorage.setItem('lifeCitySave', JSON.stringify(data));
+                const msg = currentLang === 'fa' ? '💾 بازی ذخیره شد!' : '💾 Game saved!';
+                showToast(msg, 1500);
+                return true;
+            } catch (e) {
+                const msg = currentLang === 'fa' ? '❌ خطا در ذخیره‌سازی!' : '❌ Save error!';
+                showToast(msg, 1500);
+                return false;
+            }
+        }
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('lifeCitySave');
+                if (!saved) {
+                    const msg = currentLang === 'fa' ? '❌ هیچ ذخیره‌ای پیدا نشد!' : '❌ No save found!';
+                    showToast(msg, 1500);
+                    return false;
+                }
+
+                const data = JSON.parse(saved);
+
+                // پاک کردن شهر فعلی
+                objects.forEach(o => o.element.remove());
+                objects = [];
+                selectedObject = null;
+                objectIdCounter = 0;
+
+                // بازیابی حالت بازی
+                gameState.money = data.money || 100;
+                gameState.score = data.score || 0;
+                gameState.level = data.level || 1;
+                gameState.day = data.day || 1;
+                gameState.tasksDone = data.tasksDone || [];
+                gameState.buildingLevels = data.buildingLevels || {};
+                gameState.completedDays = data.completedDays || 0;
+
+                // بازیابی اشیاء
+                if (data.objects) {
+                    data.objects.forEach(objData => {
+                        if (objData.type === 'object') {
+                            addObject(objData.objType, objData.x, objData.y);
+                        } else if (objData.type === 'character') {
+                            addCharacter(objData.objType, objData.x, objData.y);
+                        }
+                    });
+                }
+
+                // آپدیت چالش
+                generateDailyChallenge();
+
+                updateStats();
+                const msg = currentLang === 'fa' ? '📂 بازی بارگذاری شد!' : '📂 Game loaded!';
+                showToast(msg, 1500);
+                return true;
+            } catch (e) {
+                const msg = currentLang === 'fa' ? '❌ خطا در بارگذاری!' : '❌ Load error!';
+                showToast(msg, 1500);
+                return false;
+            }
+        }
+
+        function resetGame() {
+            const confirmMsg = currentLang === 'fa' ?
+                '🔄 آیا مطمئنی همه چیز ریست شود؟' :
+                '🔄 Are you sure you want to reset everything?';
+            if (!confirm(confirmMsg)) return;
+
+            localStorage.removeItem('lifeCitySave');
+            objects.forEach(o => o.element.remove());
+            objects = [];
+            selectedObject = null;
+            objectIdCounter = 0;
+            gameState.money = 100;
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.day = 1;
+            gameState.tasksDone = [];
+            gameState.buildingLevels = {};
+            gameState.completedDays = 0;
+            updateStats();
+            generateDailyChallenge();
+            const msg = currentLang === 'fa' ? '🔄 بازی ریست شد!' : '🔄 Game reset!';
+            showToast(msg, 1500);
+        }
+
+        // ================================================
+        //  CORE FUNCTIONS
+        // ================================================
+        function getRandomPosition() {
+            const padding = 50;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            return {
+                x: padding + Math.random() * (w - padding * 2),
+                y: padding + Math.random() * (h - padding * 2 - 150)
+            };
+        }
+
+        function showToast(text, duration = 1500) {
+            toast.textContent = text;
+            toast.style.display = 'block';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+
+        function updateStats() {
+            document.getElementById('moneyDisplay').textContent = gameState.money;
+            document.getElementById('scoreDisplay').textContent = gameState.score;
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('dayDisplay').textContent = gameState.day;
+        }
+
+        function applyCamera() {
+            const transform = `scale(${cameraScale}) translate(${cameraOffsetX}px, ${cameraOffsetY}px)`;
+            container.style.transform = transform;
+            container.style.transformOrigin = 'center center';
+        }
+
+        function getObjectLabel(obj) {
+            const data = objectData[obj.objType];
+            if (obj.type === 'character') {
+                const char = characterData[obj.objType];
+                return currentLang === 'fa' ? char?.labelFa || 'شخصیت' : char?.labelEn || 'Character';
+            }
+            return currentLang === 'fa' ? data?.labelFa || 'شیء' : data?.labelEn || 'Object';
+        }
+
+        function getObjectEmoji(obj) {
+            if (obj.type === 'character') return characterData[obj.objType]?.emoji || '👤';
+            return objectData[obj.objType]?.emoji || '📦';
+        }
+
+        // ================================================
+        //  BUILDING LEVEL SYSTEM
+        // ================================================
+        function upgradeBuilding(objId) {
+            const obj = objects.find(o => o.id === objId);
+            if (!obj || obj.type !== 'object') return;
+
+            const key = obj.objType;
+            if (!gameState.buildingLevels[key]) gameState.buildingLevels[key] = 1;
+
+            const currentLevel = gameState.buildingLevels[key];
+            const cost = currentLevel * 30;
+
+            if (gameState.money < cost) {
+                const msg = currentLang === 'fa' ?
+                    `💰 پول کافی نیست! نیاز به ${cost} سکه` :
+                    `💰 Not enough money! Need ${cost} coins`;
+                showToast(msg, 1200);
+                return;
+            }
+
+            gameState.money -= cost;
+            gameState.buildingLevels[key] = currentLevel + 1;
+            gameState.score += 10;
+
+            const levelBadge = obj.element.querySelector('.level-badge');
+            if (levelBadge) {
+                levelBadge.textContent = currentLevel + 1;
+            } else {
+                const badge = document.createElement('div');
+                badge.className = 'level-badge';
+                badge.textContent = currentLevel + 1;
+                obj.element.appendChild(badge);
+            }
+
+            const emoji = obj.element.querySelector('.obj-emoji');
+            if (emoji) {
+                const size = 28 + (currentLevel * 2);
+                emoji.style.fontSize = size + 'px';
+            }
+
+            const msg = currentLang === 'fa' ?
+                `⬆️ ${getObjectLabel(obj)} به سطح ${currentLevel + 1} رسید!` :
+                `⬆️ ${getObjectLabel(obj)} reached level ${currentLevel + 1}!`;
+            showToast(msg, 1200);
+            checkLevelUp();
+            updateStats();
+            saveGame();
+        }
+
+        function checkLevelUp() {
+            const newLevel = Math.floor(gameState.score / 100) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                const msg = currentLang === 'fa' ?
+                    `🏆 سطح شما به ${newLevel} افزایش یافت!` :
+                    `🏆 Your level increased to ${newLevel}!`;
+                showToast(msg, 1500);
+                gameState.money += newLevel * 20;
+                updateStats();
+                saveGame();
+            }
+        }
+
+        // ================================================
+        //  ADD OBJECTS & CHARACTERS
+        // ================================================
+        function addObject(type, x, y) {
+            const pos = (x !== undefined && y !== undefined) ? { x, y } : getRandomPosition();
+            const id = objectIdCounter++;
+            const data = objectData[type];
+            if (!data) return;
+
+            const div = document.createElement('div');
+            div.className = 'game-object';
+            div.dataset.id = id;
+            div.dataset.type = 'object';
+            div.dataset.objType = type;
+            div.style.left = pos.x + 'px';
+            div.style.top = pos.y + 'px';
+
+            const emojiSpan = document.createElement('div');
+            emojiSpan.className = 'obj-emoji';
+            emojiSpan.textContent = data.emoji;
+
+            const labelSpan = document.createElement('div');
+            labelSpan.className = 'obj-label';
+            labelSpan.textContent = currentLang === 'fa' ? data.labelFa : data.labelEn;
+
+            div.appendChild(emojiSpan);
+            div.appendChild(labelSpan);
+
+            if (!gameState.buildingLevels[type]) {
+                gameState.buildingLevels[type] = 1;
+            }
+            const badge = document.createElement('div');
+            badge.className = 'level-badge';
+            badge.textContent = gameState.buildingLevels[type];
+            div.appendChild(badge);
+
+            div.addEventListener('dblclick', function(e) {
+                e.stopPropagation();
+                const objId = parseInt(this.dataset.id);
+                upgradeBuilding(objId);
+            });
+
+            div.addEventListener('pointerdown', onObjectPointerDown);
+            div.addEventListener('click', onObjectClick);
+
+            container.appendChild(div);
+
+            objects.push({
+                id: id,
+                element: div,
+                type: 'object',
+                objType: type,
+                x: pos.x,
+                y: pos.y,
+                rotation: 0
+            });
+
+            if (x === undefined) {
+                const cost = 10;
+                gameState.money = Math.max(0, gameState.money - cost);
+                gameState.score += 5;
+                const label = currentLang === 'fa' ? data.labelFa : data.labelEn;
+                const msg = currentLang === 'fa' ?
+                    `✅ ${label} ساخته شد! (سطح ${gameState.buildingLevels[type]})` :
+                    `✅ ${label} built! (Level ${gameState.buildingLevels[type]})`;
+                showToast(msg, 800);
+                updateStats();
+                checkLevelUp();
+                saveGame();
+            }
+            closeMenu();
+            return id;
+        }
+
+        function addCharacter(type, x, y) {
+            const pos = (x !== undefined && y !== undefined) ? { x, y } : getRandomPosition();
+            const id = objectIdCounter++;
+            const data = characterData[type];
+            if (!data) return;
+
+            const div = document.createElement('div');
+            div.className = 'game-object';
+            div.dataset.id = id;
+            div.dataset.type = 'character';
+            div.dataset.objType = type;
+            div.style.left = pos.x + 'px';
+            div.style.top = pos.y + 'px';
+
+            const emojiSpan = document.createElement('div');
+            emojiSpan.className = 'obj-emoji';
+            emojiSpan.textContent = data.emoji;
+
+            const labelSpan = document.createElement('div');
+            labelSpan.className = 'obj-label';
+            labelSpan.textContent = currentLang === 'fa' ? data.labelFa : data.labelEn;
+
+            div.appendChild(emojiSpan);
+            div.appendChild(labelSpan);
+
+            div.addEventListener('pointerdown', onObjectPointerDown);
+            div.addEventListener('click', onObjectClick);
+
+            container.appendChild(div);
+
+            objects.push({
+                id: id,
+                element: div,
+                type: 'character',
+                objType: type,
+                x: pos.x,
+                y: pos.y,
+                rotation: 0
+            });
+
+            if (x === undefined) {
+                gameState.score += 10;
+                const label = currentLang === 'fa' ? data.labelFa : data.labelEn;
+                const msg = currentLang === 'fa' ?
+                    `👤 ${label} به شهر پیوست!` :
+                    `👤 ${label} joined the city!`;
+                showToast(msg, 800);
+                updateStats();
+                checkLevelUp();
+                saveGame();
+            }
+            closeMenu();
+            return id;
+        }
+
+        // ================================================
+        //  SELECTION & EVENTS
+        // ================================================
+        function selectObject(id) {
+            if (selectedObject) {
+                selectedObject.element.classList.remove('selected');
+            }
+            const obj = objects.find(o => o.id === id);
+            if (obj) {
+                selectedObject = obj;
+                obj.element.classList.add('selected');
+                const label = getObjectLabel(obj);
+                const msg = currentLang === 'fa' ?
+                    `📌 ${label} انتخاب شد` :
+                    `📌 ${label} selected`;
+                showToast(msg, 500);
+            } else {
+                selectedObject = null;
+            }
+        }
+
+        function onObjectPointerDown(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const objId = parseInt(this.dataset.id);
+            const obj = objects.find(o => o.id === objId);
+            if (!obj) return;
+
+            if (isDeleteMode) {
+                deleteObject(objId);
+                return;
+            }
+
+            selectObject(objId);
+            if (isMoveMode) {
+                startDrag(e, obj);
+            }
+        }
+
+        function onObjectClick(e) {
+            e.stopPropagation();
+            const objId = parseInt(this.dataset.id);
+            if (isDeleteMode) {
+                deleteObject(objId);
+                return;
+            }
+            if (!isMoveMode) {
+                selectObject(objId);
+            }
+        }
+
+        // ================================================
+        //  DRAG & DROP
+        // ================================================
+        function startDrag(e, obj) {
+            const clientX = e.clientX || e.touches?.[0]?.clientX || 0;
+            const clientY = e.clientY || e.touches?.[0]?.clientY || 0;
+
+            dragData = {
+                obj: obj,
+                startX: clientX,
+                startY: clientY,
+                origX: obj.x,
+                origY: obj.y
+            };
+            document.addEventListener('pointermove', onDragMove);
+            document.addEventListener('pointerup', onDragEnd);
+        }
+
+        function onDragMove(e) {
+            if (!dragData) return;
+            e.preventDefault();
+            const clientX = e.clientX || e.touches?.[0]?.clientX || 0;
+            const clientY = e.clientY || e.touches?.[0]?.clientY || 0;
+
+            const dx = (clientX - dragData.startX);
+            const dy = (clientY - dragData.startY);
+
+            const newX = Math.max(10, Math.min(container.clientWidth - 40, dragData.origX + dx));
+            const newY = Math.max(10, Math.min(container.clientHeight - 80, dragData.origY + dy));
+
+            dragData.obj.x = newX;
+            dragData.obj.y = newY;
+            dragData.obj.element.style.left = newX + 'px';
+            dragData.obj.element.style.top = newY + 'px';
+        }
+
+        function onDragEnd(e) {
+            if (dragData) {
+                saveGame();
+                dragData = null;
+            }
+            document.removeEventListener('pointermove', onDragMove);
+            document.removeEventListener('pointerup', onDragEnd);
+        }
+
+        // ================================================
+        //  DELETE
+        // ================================================
+        function deleteObject(id) {
+            const index = objects.findIndex(o => o.id === id);
+            if (index === -1) return;
+            const obj = objects[index];
+            obj.element.remove();
+            objects.splice(index, 1);
+            if (selectedObject && selectedObject.id === id) selectedObject = null;
+            const label = getObjectLabel(obj);
+            const msg = currentLang === 'fa' ?
+                `🗑️ ${label} حذف شد` :
+                `🗑️ ${label} deleted`;
+            showToast(msg, 600);
+            updateStats();
+            saveGame();
+        }
+
+        function clearAll() {
+            if (objects.length === 0) {
+                const msg = currentLang === 'fa' ? '🏙️ شهر خالی است!' : '🏙️ City is empty!';
+                showToast(msg, 600);
+                return;
+            }
+            const confirmMsg = currentLang === 'fa' ? '🗑️ همه چیز پاک شود؟' : '🗑️ Delete everything?';
+            if (!confirm(confirmMsg)) return;
+            objects.forEach(o => o.element.remove());
+            objects = [];
+            selectedObject = null;
+            const msg = currentLang === 'fa' ? '🧹 همه چیز پاک شد!' : '🧹 Everything cleared!';
+            showToast(msg, 800);
+            updateStats();
+            saveGame();
+            closeMenu();
+        }
+
+        // ================================================
+        //  ROTATE
+        // ================================================
+        function rotateSelected() {
+            if (!selectedObject) {
+                const msg = currentLang === 'fa' ? '❌ ابتدا یک شیء را انتخاب کن!' : '❌ Select an object first!';
+                showToast(msg, 800);
+                return;
+            }
+            selectedObject.rotation = (selectedObject.rotation || 0) + 45;
+            selectedObject.element.style.transform =
+                `scale(${cameraScale}) rotate(${selectedObject.rotation}deg)`;
+            const msg = currentLang === 'fa' ?
+                `🔄 چرخش: ${selectedObject.rotation}°` :
+                `🔄 Rotation: ${selectedObject.rotation}°`;
+            showToast(msg, 400);
+            saveGame();
+            closeMenu();
+        }
+
+        // ================================================
+        //  MODES
+        // ================================================
+        function toggleMoveMode() {
+            isMoveMode = !isMoveMode;
+            isDeleteMode = false;
+            document.getElementById('deleteIndicator').style.display = 'none';
+            const msg = currentLang === 'fa' ?
+                (isMoveMode ? '✋ حرکت فعال' : '✋ حرکت غیرفعال') :
+                (isMoveMode ? '✋ Move mode on' : '✋ Move mode off');
+            showToast(msg, 800);
+            container.style.cursor = isMoveMode ? 'grab' : 'default';
+            closeMenu();
+        }
+
+        function toggleDeleteMode() {
+            isDeleteMode = !isDeleteMode;
+            isMoveMode = false;
+            document.getElementById('deleteIndicator').style.display = isDeleteMode ? 'block' : 'none';
+            const msg = currentLang === 'fa' ?
+                (isDeleteMode ? '🗑️ حالت حذف فعال' : '🗑️ حذف غیرفعال') :
+                (isDeleteMode ? '🗑️ Delete mode on' : '🗑️ Delete mode off');
+            showToast(msg, 800);
+            container.style.cursor = isDeleteMode ? 'crosshair' : 'default';
+            closeMenu();
+        }
+
+        // ================================================
+        //  CAMERA
+        // ================================================
+        function zoomIn() {
+            cameraScale = Math.min(cameraScale + 0.15, 2.5);
+            applyCamera();
+        }
+
+        function zoomOut() {
+            cameraScale = Math.max(cameraScale - 0.15, 0.4);
+            applyCamera();
+        }
+
+        function resetCamera() {
+            cameraScale = 1;
+            cameraOffsetX = 0;
+            cameraOffsetY = 0;
+            applyCamera();
+            const msg = currentLang === 'fa' ? '🏠 دوربین ریست شد' : '🏠 Camera reset';
+            showToast(msg, 400);
+        }
+
+        // ================================================
+        //  CAMERA PAN
+        // ================================================
+        container.addEventListener('pointerdown', (e) => {
+            if (e.target === container || e.target.id === 'gameContainer') {
+                isPanning = true;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                panStartOffsetX = cameraOffsetX;
+                panStartOffsetY = cameraOffsetY;
+                container.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (isPanning) {
+                const dx = e.clientX - panStartX;
+                const dy = e.clientY - panStartY;
+                cameraOffsetX = panStartOffsetX + dx;
+                cameraOffsetY = panStartOffsetY + dy;
+                applyCamera();
+            }
+        });
+
+        document.addEventListener('pointerup', () => {
+            if (isPanning) {
+                isPanning = false;
+                container.style.cursor = 'default';
+            }
+        });
+
+        // ================================================
+        //  DAILY TASKS
+        // ================================================
+        function doTask(taskId) {
+            if (gameState.tasksDone.includes(taskId)) {
+                const msg = currentLang === 'fa' ?
+                    '⏳ این کار رو امروز انجام دادی!' :
+                    '⏳ You already did this today!';
+                showToast(msg, 800);
+                return;
+            }
+
+            const task = dailyTaskList.find(t => t.id === taskId);
+            if (!task) return;
+
+            gameState.tasksDone.push(taskId);
+            gameState.money += task.reward;
+            gameState.score += task.reward;
+
+            const taskObjects = {
+                school: 'school',
+                shopping: 'shop',
+                family_dinner: 'restaurant',
+                salon: 'salon',
+                restaurant: 'restaurant',
+                park: 'tree'
+            };
+
+            if (taskObjects[taskId]) {
+                addObject(taskObjects[taskId]);
+            }
+
+            const label = currentLang === 'fa' ? task.labelFa : task.labelEn;
+            const msg = currentLang === 'fa' ?
+                `✅ ${task.icon} ${label} انجام شد! +${task.reward}💰` :
+                `✅ ${task.icon} ${label} done! +${task.reward}💰`;
+            showToast(msg, 1200);
+            updateStats();
+            checkLevelUp();
+            checkChallenge();
+            saveGame();
+            closeMenu();
+        }
+
+        function showDailyPlan() {
+            let plan = currentLang === 'fa' ? '📋 برنامه روزانه:\n' : '📋 Daily Plan:\n';
+            dailyTaskList.forEach(t => {
+                const done = gameState.tasksDone.includes(t.id) ? '✅' : '⏳';
+                const label = currentLang === 'fa' ? t.labelFa : t.labelEn;
+                plan += `${done} ${t.icon} ${label} (+${t.reward}💰)\n`;
+            });
+            plan += `\n💰 ${currentLang === 'fa' ? 'پول' : 'Money'}: ${gameState.money}`;
+            plan += `\n⭐ ${currentLang === 'fa' ? 'امتیاز' : 'Score'}: ${gameState.score}`;
+            plan += `\n🏆 ${currentLang === 'fa' ? 'سطح' : 'Level'}: ${gameState.level}`;
+            alert(plan);
+            closeMenu();
+        }
+
+        // ================================================
+        //  CHALLENGE SYSTEM
+        // ================================================
+        function generateDailyChallenge() {
+            const challenge = challengeList[Math.floor(Math.random() * challengeList.length)];
+            currentChallenge = challenge;
+            document.getElementById('dailyChallenge').style.display = 'block';
+            const text = currentLang === 'fa' ? challenge.textFa : challenge.textEn;
+            document.getElementById('challengeText').textContent = '🎯 ' + text;
+        }
+
+        function checkChallenge() {
+            if (!currentChallenge) return;
+            if (currentChallenge.check()) {
+                const reward = 50;
+                gameState.money += reward;
+                gameState.score += reward;
+                const msg = currentLang === 'fa' ?
+                    `🎉 چالش روزانه کامل شد! +${reward}💰` :
+                    `🎉 Daily challenge completed! +${reward}💰`;
+                showToast(msg, 2000);
+                document.getElementById('dailyChallenge').style.display = 'none';
+                currentChallenge = null;
+                updateStats();
+                checkLevelUp();
+                saveGame();
+
+                if (gameState.tasksDone.length === dailyTaskList.length) {
+                    const bonus = 100;
+                    gameState.money += bonus;
+                    gameState.score += bonus;
+                    const bonusMsg = currentLang === 'fa' ?
+                        `🌟 روز کامل! پاداش ویژه +${bonus}💰` :
+                        `🌟 Perfect day! Bonus +${bonus}💰`;
+                    showToast(bonusMsg, 2000);
+                    saveGame();
+                }
+            }
+        }
+
+        // ================================================
+        //  PHONE FEATURES
+        // ================================================
+        function callTaxi() {
+            if (gameState.money < 10) {
+                const msg = currentLang === 'fa' ?
+                    '💰 پول کافی برای تاکسی نیست! (۱۰ سکه)' :
+                    '💰 Not enough money for taxi! (10 coins)';
+                showToast(msg, 1000);
+                return;
+            }
+            gameState.money -= 10;
+            const msg = currentLang === 'fa' ?
+                '🚕 تاکسی رسید! به مقصد رسیدی!' :
+                '🚕 Taxi arrived! You reached your destination!';
+            showToast(msg, 1000);
+            updateStats();
+            saveGame();
+            const chars = objects.filter(o => o.type === 'character');
+            if (chars.length > 0) {
+                const randomChar = chars[Math.floor(Math.random() * chars.length)];
+                const pos = getRandomPosition();
+                randomChar.x = pos.x;
+                randomChar.y = pos.y;
+                randomChar.element.style.left = pos.x + 'px';
+                randomChar.element.style.top = pos.y + 'px';
+            }
+        }
+
+        function setAlarm() {
+            const defaultTime = currentLang === 'fa' ? '۰۷:۰۰' : '07:00';
+            const promptMsg = currentLang === 'fa' ?
+                '⏰ ساعت زنگ را تنظیم کن (مثلاً 07:00):' :
+                '⏰ Set alarm time (e.g. 07:00):';
+            const time = prompt(promptMsg, defaultTime);
+            if (time) {
+                const msg = currentLang === 'fa' ?
+                    `⏰ زنگ ساعت برای ${time} تنظیم شد!` :
+                    `⏰ Alarm set for ${time}!`;
+                showToast(msg, 1000);
+                gameState.score += 5;
+                updateStats();
+                saveGame();
+            }
+        }
+
+        function schoolTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+            if (hours >= 7 && hours < 14) {
+                const msg = currentLang === 'fa' ?
+                    `🏫 ساعت مدرسه است! (${timeStr})` :
+                    `🏫 It's school time! (${timeStr})`;
+                showToast(msg, 1000);
+                if (!gameState.tasksDone.includes('school')) {
+                    doTask('school');
+                }
+            } else {
+                const msg = currentLang === 'fa' ?
+                    `⏰ الان ${timeStr} است. مدرسه تعطیل!` :
+                    `⏰ It's ${timeStr}. School is closed!`;
+                showToast(msg, 800);
+            }
+        }
+
+        function completeDailyTask() {
+            const doneCount = gameState.tasksDone.length;
+            const total = dailyTaskList.length;
+
+            if (doneCount >= total) {
+                const msg = currentLang === 'fa' ?
+                    '🎉 همه کارهای امروز رو انجام دادی! عالی!' :
+                    '🎉 You completed all tasks today! Great!';
+                showToast(msg, 1500);
+                const bonus = 50;
+                gameState.money += bonus;
+                gameState.score += bonus;
+                updateStats();
+                checkLevelUp();
+                saveGame();
+                setTimeout(() => {
+                    resetDay();
+                }, 2000);
+            } else {
+                const remaining = total - doneCount;
+                const msg = currentLang === 'fa' ?
+                    `⏳ ${remaining} کار باقی مونده! (${doneCount}/${total})` :
+                    `⏳ ${remaining} tasks remaining! (${doneCount}/${total})`;
+                showToast(msg, 1200);
+            }
+        }
+
+        // ================================================
+        //  NEW DAY
+        // ================================================
+        function resetDay() {
+            gameState.day++;
+            gameState.tasksDone = [];
+            gameState.completedDays++;
+            const dayBonus = 20 + (gameState.completedDays * 5);
+            gameState.money += dayBonus;
+            gameState.score += dayBonus;
+
+            generateDailyChallenge();
+
+            const msg = currentLang === 'fa' ?
+                `🌅 روز ${gameState.day} شروع شد! +${dayBonus}💰` :
+                `🌅 Day ${gameState.day} started! +${dayBonus}💰`;
+            showToast(msg, 2000);
+            updateStats();
+            checkLevelUp();
+            saveGame();
+            closeMenu();
+        }
+
+        // ================================================
+        //  MENU
+        // ================================================
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            menu.classList.toggle('open');
+        }
+
+        function closeMenu() {
+            document.getElementById('sideMenu').classList.remove('open');
+        }
+
+        // ================================================
+        //  AUTO-SAVE
+        // ================================================
+        setInterval(() => {
+            if (objects.length > 0) {
+                saveGame();
+                console.log('💾 Auto-saved');
+            }
+        }, 15000);
+
+        // ================================================
+        //  INIT
+        // ================================================
+        function init() {
+            // Try to load saved game first
+            const loaded = loadGame();
+
+            // If no save, start new game with default objects
+            if (!loaded) {
+                setTimeout(() => {
+                    addObject('home');
+                    addObject('school');
+                    addObject('tree');
+                    addObject('shop');
+                    addCharacter('ladybug');
+                    addCharacter('fairy');
+                }, 300);
+                generateDailyChallenge();
+            }
+
+            applyCamera();
+            updateStats();
+
+            // Set initial language
+            const btn = document.getElementById('langBtn');
+            btn.textContent = '🇬🇧 EN';
+            currentLang = 'en';
+            toggleLanguage();
+
+            console.log('🏙️ Life City - Full Simulator with Auto-Save!');
+            console.log('💾 Game saves automatically every 15 seconds');
+            console.log('📂 Use Save/Load buttons to manage your progress');
+        }
+
+        init();
+    </script>
+</body>
+</html>
+```
+
+---
+
+✅ ویژگی‌های جدید:
+
+ویژگی توضیح
+💾 دکمه Save بازی رو دستی ذخیره کن
+📂 دکمه Load بازی رو از ذخیره قبلی بارگذاری کن
+🔄 دکمه Reset همه چیز رو ریست کن (با تایید)
+⏰ Auto-Save هر ۱۵ ثانیه خودکار ذخیره میشه
+🔒 حفظ پیشرفت حتی با تغییر کد، پیشرفتت باقی میمونه
+
+---
+
+🎯 حالا این کار رو بکن:
+
+۱. کد جدید رو جایگزین کن
+۲. بازی رو باز کن
+۳. چندتا ساختمان و شخصیت بساز
+۴. دکمه Save رو بزن
+۵. کد رو هرچقدر خواستی تغییر بده
+۶. دکمه Load رو بزن → همه چی برمیگرده!
+
+---
+
+حالا دیگه نگران از دست رفتن پیشرفتهات نباش! 🚀🎮📱
