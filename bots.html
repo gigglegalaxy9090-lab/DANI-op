@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ربات‌ها - DANI OS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        h1 { font-size: 2rem; margin-bottom: 20px; }
+        .bot-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: right;
+        }
+        .bot-card .name { font-size: 1.2rem; font-weight: bold; }
+        .bot-card .status { font-size: 0.8rem; color: #4CAF50; }
+        .btn {
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:active { transform: scale(0.97); }
+        #status { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='/'">← بازگشت به صفحه اصلی</button>
+        <h1>🤖 مدیریت ربات‌ها</h1>
+        
+        <div class="bot-card">
+            <div class="name">ربات اصلی</div>
+            <div class="status">✅ آنلاین</div>
+        </div>
+        <div class="bot-card">
+            <div class="name">ربات پشتیبانی</div>
+            <div class="status">⏹️ خاموش</div>
+        </div>
+
+        <button class="btn" onclick="createBot()">➕ ساخت ربات جدید</button>
+        <div id="status"><div id="msg"></div></div>
+    </div>
+
+    <script>
+        function createBot() {
+            const name = prompt('📝 اسم ربات رو وارد کن:');
+            if (name && name.trim() !== '') {
+                const st = document.getElementById('status');
+                const msg = document.getElementById('msg');
+                st.style.display = 'block';
+                msg.innerHTML = `⏳ در حال ساخت ربات "${name}"...`;
+                setTimeout(() => {
+                    msg.innerHTML = `✅ ربات "${name}" ساخته شد! توکن: 123456:ABC-DEF`;
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+              </html>
