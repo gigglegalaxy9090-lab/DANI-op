@@ -164,7 +164,7 @@
         <p class="subtitle">پلتفرم شخصی‌سازی حرفه‌ای</p>
 
         <!-- منوی اصلی -->
-        <div class="menu-item" onclick="openSection('bots')">
+        <div class="menu-item" onclick="window.location.href='/bots.html'">
             <span class="arrow">←</span>
             <div class="info">
                 <div class="title">🤖 ربات‌ها</div>
@@ -172,19 +172,19 @@
             </div>
         </div>
 
-        <div class="menu-item" onclick="openSection('games')">
+        <div class="menu-item" onclick="window.location.href='/game.html'">
             <span class="arrow">←</span>
             <div class="info">
                 <div class="title">🎮 بازی‌ها</div>
-                <div class="desc">ساخت بازی‌های سه‌بعدی</div>
+                <div class="desc">ساخت بازی‌های سه‌بعدی و شهرسازی</div>
             </div>
         </div>
 
-        <div class="menu-item" onclick="openSection('apps')">
+        <div class="menu-item" onclick="window.location.href='/app-builder.html'">
             <span class="arrow">←</span>
             <div class="info">
-                <div class="title">📱 برنامه‌ها</div>
-                <div class="desc">ساخت برنامه‌های وب</div>
+                <div class="title">📱 برنامه‌ساز</div>
+                <div class="desc">ساخت و مدیریت برنامه‌های شخصی</div>
             </div>
         </div>
 
@@ -204,37 +204,6 @@
         // ============================================
         // توابع اصلی
         // ============================================
-
-        /**
-         * باز کردن هر بخش (ربات‌ها، بازی‌ها، برنامه‌ها)
-         */
-        function openSection(section) {
-            const status = document.getElementById('status');
-            const msg = document.getElementById('statusMessage');
-
-            const titles = {
-                bots: '🤖 ربات‌ها',
-                games: '🎮 بازی‌ها',
-                apps: '📱 برنامه‌ها'
-            };
-
-            // نمایش وضعیت
-            status.style.display = 'block';
-            msg.innerHTML = `⏳ در حال ورود به بخش ${titles[section]}...`;
-
-            // شبیه‌سازی عملیات (با تأخیر)
-            setTimeout(() => {
-                msg.innerHTML = `✅ وارد بخش ${titles[section]} شدید!`;
-
-                // نمایش پیام اختصاصی هر بخش
-                const extraMessages = {
-                    bots: '🤖 می‌توانید یک ربات تلگرام جدید بسازید یا ربات‌های موجود را مدیریت کنید.',
-                    games: '🎮 بازی‌های سه‌بعدی خود را طراحی و اجرا کنید.',
-                    apps: '📱 برنامه‌های وب شخصی‌سازی شده بسازید.'
-                };
-                msg.innerHTML += `<br><span style="font-size:0.85rem; color:#a0a0c0;">${extraMessages[section]}</span>`;
-            }, 1200);
-        }
 
         /**
          * ساخت پروژه جدید
@@ -276,4 +245,4 @@
     </script>
 
 </body>
-    </html>
+            </html>
