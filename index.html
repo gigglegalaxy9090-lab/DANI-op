@@ -3,185 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DANI OS - Personal Platform</title>
+    <title>DANI OS - پلتفرم شخصی‌سازی</title>
     <style>
+        /* ============================================
+           استایل‌های اصلی
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: white;
+            color: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             direction: rtl;
+            padding: 20px;
         }
+
         .container {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            padding: 50px;
-            border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 600px;
-            width: 90%;
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
             text-align: center;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
         }
+
         .logo {
             font-size: 80px;
             margin-bottom: 10px;
         }
+
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
+            font-weight: 900;
             background: linear-gradient(90deg, #f7971e, #ffd200);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
+
         .subtitle {
             color: #a0a0c0;
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 20px;
         }
-        .menu {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+
+        /* ============================================
+           منوی اصلی
+           ============================================ */
         .menu-item {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .menu-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(-10px);
-            border-color: #f7971e;
+
+        .menu-item:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.12);
         }
+
         .menu-item .icon {
-            font-size: 30px;
+            font-size: 28px;
+            margin-left: 15px;
         }
+
+        .menu-item .info {
+            flex: 1;
+            text-align: right;
+        }
+
         .menu-item .title {
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.1rem;
+            font-weight: 600;
         }
+
         .menu-item .desc {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #a0a0c0;
         }
+
         .menu-item .arrow {
             color: #f7971e;
             font-size: 20px;
         }
-        .btn {
+
+        /* ============================================
+           دکمه پروژه جدید
+           ============================================ */
+        .btn-primary {
             background: linear-gradient(90deg, #f7971e, #ffd200);
-            color: #1a1a2e;
             border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
+            border-radius: 14px;
+            padding: 16px;
+            width: 100%;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 700;
+            color: #1a1a2e;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
-            width: 100%;
+            margin-top: 10px;
         }
-        .btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(247, 151, 30, 0.3);
+
+        .btn-primary:active {
+            transform: scale(0.97);
         }
+
+        /* ============================================
+          وضعیت (Status)
+          ============================================ */
         #status {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
             display: none;
             font-size: 0.95rem;
+            border-right: 3px solid #f7971e;
         }
+
+        /* ============================================
+          فوتر
+          ============================================ */
         .footer {
             margin-top: 30px;
             color: #606080;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .footer a {
+            color: #f7971e;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
+        <!-- لوگو و عنوان -->
         <div class="logo">🚀</div>
         <h1>DANI OS</h1>
         <p class="subtitle">پلتفرم شخصی‌سازی حرفه‌ای</p>
 
-        <div class="menu">
-            <div class="menu-item" onclick="showSection('bots')">
-                <div>
-                    <div class="title">🤖 ربات‌ها</div>
-                    <div class="desc">ساخت و مدیریت ربات‌های تلگرام</div>
-                </div>
-                <span class="arrow">→</span>
-            </div>
-            <div class="menu-item" onclick="showSection('games')">
-                <div>
-                    <div class="title">🎮 بازی‌ها</div>
-                    <div class="desc">ساخت بازی‌های سه‌بعدی</div>
-                </div>
-                <span class="arrow">→</span>
-            </div>
-            <div class="menu-item" onclick="showSection('apps')">
-                <div>
-                    <div class="title">📱 برنامه‌ها</div>
-                    <div class="desc">ساخت برنامه‌های وب</div>
-                </div>
-                <span class="arrow">→</span>
+        <!-- منوی اصلی -->
+        <div class="menu-item" onclick="openSection('bots')">
+            <span class="arrow">←</span>
+            <div class="info">
+                <div class="title">🤖 ربات‌ها</div>
+                <div class="desc">ساخت و مدیریت ربات‌های تلگرام</div>
             </div>
         </div>
 
-        <button class="btn" onclick="createProject()">➕ پروژه جدید</button>
+        <div class="menu-item" onclick="openSection('games')">
+            <span class="arrow">←</span>
+            <div class="info">
+                <div class="title">🎮 بازی‌ها</div>
+                <div class="desc">ساخت بازی‌های سه‌بعدی</div>
+            </div>
+        </div>
 
+        <div class="menu-item" onclick="openSection('apps')">
+            <span class="arrow">←</span>
+            <div class="info">
+                <div class="title">📱 برنامه‌ها</div>
+                <div class="desc">ساخت برنامه‌های وب</div>
+            </div>
+        </div>
+
+        <!-- دکمه پروژه جدید -->
+        <button class="btn-primary" onclick="newProject()">➕ پروژه جدید</button>
+
+        <!-- وضعیت -->
         <div id="status">
             <div id="statusMessage"></div>
         </div>
 
+        <!-- فوتر -->
         <div class="footer">© 2026 DANI OS · v2.0</div>
     </div>
 
     <script>
-        function showSection(section) {
+        // ============================================
+        // توابع اصلی
+        // ============================================
+
+        /**
+         * باز کردن هر بخش (ربات‌ها، بازی‌ها، برنامه‌ها)
+         */
+        function openSection(section) {
             const status = document.getElementById('status');
             const msg = document.getElementById('statusMessage');
+
             const titles = {
-                bots: '🤖 وارد شدن به بخش ربات‌ها...',
-                games: '🎮 وارد شدن به بخش بازی‌ها...',
-                apps: '📱 وارد شدن به بخش برنامه‌ها...'
+                bots: '🤖 ربات‌ها',
+                games: '🎮 بازی‌ها',
+                apps: '📱 برنامه‌ها'
             };
+
+            // نمایش وضعیت
             status.style.display = 'block';
-            msg.innerHTML = `${titles[section]} ✅`;
+            msg.innerHTML = `⏳ در حال ورود به بخش ${titles[section]}...`;
+
+            // شبیه‌سازی عملیات (با تأخیر)
             setTimeout(() => {
-                msg.innerHTML = `✅ ${titles[section]} (اتصال به سرور)`;
-            }, 1000);
+                msg.innerHTML = `✅ وارد بخش ${titles[section]} شدید!`;
+
+                // نمایش پیام اختصاصی هر بخش
+                const extraMessages = {
+                    bots: '🤖 می‌توانید یک ربات تلگرام جدید بسازید یا ربات‌های موجود را مدیریت کنید.',
+                    games: '🎮 بازی‌های سه‌بعدی خود را طراحی و اجرا کنید.',
+                    apps: '📱 برنامه‌های وب شخصی‌سازی شده بسازید.'
+                };
+                msg.innerHTML += `<br><span style="font-size:0.85rem; color:#a0a0c0;">${extraMessages[section]}</span>`;
+            }, 1200);
         }
 
-        function createProject() {
+        /**
+         * ساخت پروژه جدید
+         */
+        function newProject() {
             const status = document.getElementById('status');
             const msg = document.getElementById('statusMessage');
-            const name = prompt('نام پروژه جدید:');
-            if (name) {
-                status.style.display = 'block';
-                msg.innerHTML = `🚀 پروژه "${name}" در حال ساخت...`;
-                setTimeout(() => {
-                    msg.innerHTML = `✅ پروژه "${name}" با موفقیت ساخته شد!`;
-                }, 1500);
+
+            // گرفتن اسم پروژه از کاربر
+            const projectName = prompt('📝 لطفاً نام پروژه جدید را وارد کنید:');
+
+            // اگر کاربر روی Cancel کلیک کرد یا اسمی وارد نکرد
+            if (projectName === null) {
+                return;
             }
+
+            if (projectName.trim() === '') {
+                alert('❌ لطفاً یک نام معتبر وارد کنید!');
+                return;
+            }
+
+            // نمایش وضعیت
+            status.style.display = 'block';
+            msg.innerHTML = `⏳ در حال ساخت پروژه "${projectName}"...`;
+
+            // شبیه‌سازی عملیات
+            setTimeout(() => {
+                msg.innerHTML = `✅ پروژه "${projectName}" با موفقیت ساخته شد! 🎉`;
+                msg.innerHTML += `<br><span style="font-size:0.85rem; color:#a0a0c0;">🔗 لینک پروژه: /projects/${projectName.toLowerCase().replace(/\s/g, '-')}</span>`;
+            }, 1500);
         }
+
+        // ============================================
+        // نمایش پیام خوش‌آمدگویی هنگام بارگذاری
+        // ============================================
+        window.onload = function() {
+            console.log('🚀 DANI OS v2.0 Loaded!');
+        };
     </script>
+
 </body>
-  </html>
+    </html>
