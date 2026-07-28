@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DANI OS - پلتفرم شخصی‌سازی</title>
     <style>
-        /* ============================================
-           استایل‌های اصلی
-           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -60,9 +57,6 @@
             padding-bottom: 20px;
         }
 
-        /* ============================================
-           منوی اصلی
-           ============================================ */
         .menu-item {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -79,11 +73,6 @@
         .menu-item:active {
             transform: scale(0.97);
             background: rgba(255, 255, 255, 0.12);
-        }
-
-        .menu-item .icon {
-            font-size: 28px;
-            margin-left: 15px;
         }
 
         .menu-item .info {
@@ -106,9 +95,6 @@
             font-size: 20px;
         }
 
-        /* ============================================
-           دکمه پروژه جدید
-           ============================================ */
         .btn-primary {
             background: linear-gradient(90deg, #f7971e, #ffd200);
             border: none;
@@ -127,9 +113,6 @@
             transform: scale(0.97);
         }
 
-        /* ============================================
-          وضعیت (Status)
-          ============================================ */
         #status {
             margin-top: 20px;
             padding: 15px;
@@ -140,31 +123,23 @@
             border-right: 3px solid #f7971e;
         }
 
-        /* ============================================
-          فوتر
-          ============================================ */
         .footer {
             margin-top: 30px;
             color: #606080;
             font-size: 0.75rem;
-        }
-
-        .footer a {
-            color: #f7971e;
-            text-decoration: none;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- لوگو و عنوان -->
         <div class="logo">🚀</div>
         <h1>DANI OS</h1>
         <p class="subtitle">پلتفرم شخصی‌سازی حرفه‌ای</p>
 
-        <!-- منوی اصلی -->
-        <div class="menu-item" onclick="window.location.href='/bots.html'">
+        <!-- ===== منوی اصلی با آدرس‌های درست ===== -->
+        <!-- ربات‌ها -->
+        <div class="menu-item" onclick="window.location.href='telegram-bot/bot.js'">
             <span class="arrow">←</span>
             <div class="info">
                 <div class="title">🤖 ربات‌ها</div>
@@ -172,7 +147,8 @@
             </div>
         </div>
 
-        <div class="menu-item" onclick="window.location.href='/game.html'">
+        <!-- بازی‌ها (داخل پوشه dani-world) -->
+        <div class="menu-item" onclick="window.location.href='dani-world/index.html'">
             <span class="arrow">←</span>
             <div class="info">
                 <div class="title">🎮 بازی‌ها</div>
@@ -180,7 +156,8 @@
             </div>
         </div>
 
-        <div class="menu-item" onclick="window.location.href='/app-builder.html'">
+        <!-- برنامه‌ساز -->
+        <div class="menu-item" onclick="window.location.href='app-builder.html'">
             <span class="arrow">←</span>
             <div class="info">
                 <div class="title">📱 برنامه‌ساز</div>
@@ -188,34 +165,21 @@
             </div>
         </div>
 
-        <!-- دکمه پروژه جدید -->
         <button class="btn-primary" onclick="newProject()">➕ پروژه جدید</button>
 
-        <!-- وضعیت -->
         <div id="status">
             <div id="statusMessage"></div>
         </div>
 
-        <!-- فوتر -->
         <div class="footer">© 2026 DANI OS · v2.0</div>
     </div>
 
     <script>
-        // ============================================
-        // توابع اصلی
-        // ============================================
-
-        /**
-         * ساخت پروژه جدید
-         */
         function newProject() {
             const status = document.getElementById('status');
             const msg = document.getElementById('statusMessage');
-
-            // گرفتن اسم پروژه از کاربر
             const projectName = prompt('📝 لطفاً نام پروژه جدید را وارد کنید:');
 
-            // اگر کاربر روی Cancel کلیک کرد یا اسمی وارد نکرد
             if (projectName === null) {
                 return;
             }
@@ -225,24 +189,19 @@
                 return;
             }
 
-            // نمایش وضعیت
             status.style.display = 'block';
             msg.innerHTML = `⏳ در حال ساخت پروژه "${projectName}"...`;
 
-            // شبیه‌سازی عملیات
             setTimeout(() => {
                 msg.innerHTML = `✅ پروژه "${projectName}" با موفقیت ساخته شد! 🎉`;
                 msg.innerHTML += `<br><span style="font-size:0.85rem; color:#a0a0c0;">🔗 لینک پروژه: /projects/${projectName.toLowerCase().replace(/\s/g, '-')}</span>`;
             }, 1500);
         }
 
-        // ============================================
-        // نمایش پیام خوش‌آمدگویی هنگام بارگذاری
-        // ============================================
         window.onload = function() {
             console.log('🚀 DANI OS v2.0 Loaded!');
         };
     </script>
 
 </body>
-            </html>
+                                                                  </html>
