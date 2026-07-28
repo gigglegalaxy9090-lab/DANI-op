@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DANI OS - پلتفرم شخصی‌سازی</title>
+    <title>DANI OS - پلتفرم کامل</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -22,7 +21,6 @@
             direction: rtl;
             padding: 20px;
         }
-
         .container {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -34,12 +32,10 @@
             text-align: center;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
         }
-
         .logo {
             font-size: 80px;
             margin-bottom: 10px;
         }
-
         h1 {
             font-size: 2.8rem;
             font-weight: 900;
@@ -48,7 +44,6 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
         }
-
         .subtitle {
             color: #a0a0c0;
             font-size: 1rem;
@@ -56,7 +51,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             padding-bottom: 20px;
         }
-
         .menu-item {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -69,32 +63,26 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
         .menu-item:active {
             transform: scale(0.97);
             background: rgba(255, 255, 255, 0.12);
         }
-
         .menu-item .info {
             flex: 1;
             text-align: right;
         }
-
         .menu-item .title {
             font-size: 1.1rem;
             font-weight: 600;
         }
-
         .menu-item .desc {
             font-size: 0.8rem;
             color: #a0a0c0;
         }
-
         .menu-item .arrow {
             color: #f7971e;
             font-size: 20px;
         }
-
         .btn-primary {
             background: linear-gradient(90deg, #f7971e, #ffd200);
             border: none;
@@ -108,11 +96,9 @@
             transition: all 0.3s ease;
             margin-top: 10px;
         }
-
         .btn-primary:active {
             transform: scale(0.97);
         }
-
         #status {
             margin-top: 20px;
             padding: 15px;
@@ -122,86 +108,345 @@
             font-size: 0.95rem;
             border-right: 3px solid #f7971e;
         }
-
         .footer {
             margin-top: 30px;
             color: #606080;
             font-size: 0.75rem;
         }
+        /* ===== صفحه بازی مخفی ===== */
+        #gameSection {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+        }
+        #gameSection.active {
+            display: block;
+        }
+        #gameSection .city-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 4px;
+            touch-action: manipulation;
+        }
+        #gameSection .city-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 215, 0, 0.15);
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 50%, #7ec87e 50%, #5da35d 100%);
+            border-radius: 16px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .city-object {
+            position: absolute;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .city-object:active {
+            transform: scale(1.2);
+        }
+        /* ===== صفحه برنامه‌ساز مخفی ===== */
+        #appSection {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+        }
+        #appSection.active {
+            display: block;
+        }
+        #appSection .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+        }
+        #appSection .app-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+            cursor: pointer;
+        }
+        #appSection .app-item:active {
+            transform: scale(0.95);
+        }
+        #appSection .app-item .app-icon {
+            font-size: 28px;
+        }
+        #appSection .app-item .app-name {
+            font-size: 0.5rem;
+            color: #aaa;
+        }
+        #appSection .app-item .app-price {
+            font-size: 0.45rem;
+            color: #ffd200;
+        }
+        #appSection .app-create-btn {
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            width: 100%;
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #appSection .app-create-btn:active {
+            transform: scale(0.97);
+        }
+        /* ===== کیف پول ===== */
+        #walletDisplay {
+            font-size: 0.8rem;
+            color: #ffd200;
+            margin: 8px 0;
+        }
+        /* ===== بازگشت ===== */
+        .back-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+        /* ===== پاسخگو ===== */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .logo {
+                font-size: 60px;
+            }
+            .container {
+                padding: 25px 16px;
+            }
+            #gameCanvas {
+                height: 200px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="logo">🚀</div>
-        <h1>DANI OS</h1>
-        <p class="subtitle">پلتفرم شخصی‌سازی حرفه‌ای</p>
+    <div class="container" id="mainContainer">
+        <!-- صفحه اصلی -->
+        <div id="homePage">
+            <div class="logo">🚀</div>
+            <h1>DANI OS</h1>
+            <p class="subtitle">پلتفرم شخصی‌سازی حرفه‌ای</p>
 
-        <!-- ===== منوی اصلی با آدرس‌های درست ===== -->
-        <!-- ربات‌ها -->
-        <div class="menu-item" onclick="window.location.href='telegram-bot/bot.js'">
-            <span class="arrow">←</span>
-            <div class="info">
-                <div class="title">🤖 ربات‌ها</div>
-                <div class="desc">ساخت و مدیریت ربات‌های تلگرام</div>
+            <div class="menu-item" onclick="showGame()">
+                <span class="arrow">←</span>
+                <div class="info">
+                    <div class="title">🎮 بازی‌ها</div>
+                    <div class="desc">ساخت بازی‌های سه‌بعدی و شهرسازی</div>
+                </div>
             </div>
-        </div>
 
-        <!-- بازی‌ها (داخل پوشه dani-world) -->
-        <div class="menu-item" onclick="window.location.href='dani-world/index.html'">
-            <span class="arrow">←</span>
-            <div class="info">
-                <div class="title">🎮 بازی‌ها</div>
-                <div class="desc">ساخت بازی‌های سه‌بعدی و شهرسازی</div>
+            <div class="menu-item" onclick="showAppBuilder()">
+                <span class="arrow">←</span>
+                <div class="info">
+                    <div class="title">📱 برنامه‌ساز</div>
+                    <div class="desc">ساخت و مدیریت برنامه‌های شخصی</div>
+                </div>
             </div>
-        </div>
 
-        <!-- برنامه‌ساز -->
-        <div class="menu-item" onclick="window.location.href='app-builder.html'">
-            <span class="arrow">←</span>
-            <div class="info">
-                <div class="title">📱 برنامه‌ساز</div>
-                <div class="desc">ساخت و مدیریت برنامه‌های شخصی</div>
+            <div class="menu-item" onclick="showWallet()">
+                <span class="arrow">←</span>
+                <div class="info">
+                    <div class="title">💰 کیف پول</div>
+                    <div class="desc">مدیریت پول و خریدها</div>
+                </div>
             </div>
+
+            <button class="btn-primary" onclick="newProject()">➕ پروژه جدید</button>
+
+            <div id="status">
+                <div id="statusMessage"></div>
+            </div>
+
+            <div class="footer">© 2026 DANI OS · v2.0</div>
         </div>
 
-        <button class="btn-primary" onclick="newProject()">➕ پروژه جدید</button>
-
-        <div id="status">
-            <div id="statusMessage"></div>
+        <!-- ===== صفحه بازی ===== -->
+        <div id="gameSection">
+            <button class="back-btn" onclick="hideGame()">← بازگشت</button>
+            <h2 style="font-size:1.2rem;">🎮 شهرسازی</h2>
+            <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin:8px 0;">
+                <button class="city-btn" onclick="addCityObject('🏠')">🏠 خانه</button>
+                <button class="city-btn" onclick="addCityObject('🏥')">🏥 بیمارستان</button>
+                <button class="city-btn" onclick="addCityObject('🏫')">🏫 مدرسه</button>
+                <button class="city-btn" onclick="addCityObject('🌳')">🌳 درخت</button>
+                <button class="city-btn" onclick="addCityObject('🦸')">🦸 شخصیت</button>
+                <button class="city-btn" onclick="clearCity()">🗑️ پاک</button>
+            </div>
+            <div id="gameCanvas"></div>
+            <div style="font-size:0.7rem; color:#aaa; margin-top:6px;">🏗️ تعداد: <span id="cityCount">0</span></div>
         </div>
 
-        <div class="footer">© 2026 DANI OS · v2.0</div>
+        <!-- ===== صفحه برنامه‌ساز ===== -->
+        <div id="appSection">
+            <button class="back-btn" onclick="hideAppBuilder()">← بازگشت</button>
+            <h2 style="font-size:1.2rem;">📱 برنامه‌ساز</h2>
+            <div id="walletDisplay">💰 موجودی: $<span id="walletAmount">100</span></div>
+            <div class="app-grid" id="appGrid"></div>
+            <button class="app-create-btn" onclick="createApp()">➕ ساخت برنامه جدید</button>
+        </div>
     </div>
 
     <script>
+        // =============================================
+        //  سیستم بازی (شهرسازی)
+        // =============================================
+        let cityObjects = [];
+        let cityId = 0;
+
+        function showGame() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('gameSection').classList.add('active');
+            document.getElementById('appSection').classList.remove('active');
+        }
+
+        function hideGame() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('gameSection').classList.remove('active');
+        }
+
+        function addCityObject(emoji) {
+            const canvas = document.getElementById('gameCanvas');
+            const div = document.createElement('div');
+            div.className = 'city-object';
+            div.textContent = emoji;
+            div.style.left = (10 + Math.random() * 80) + '%';
+            div.style.top = (10 + Math.random() * 70) + '%';
+            div.dataset.id = cityId++;
+            div.onclick = function() {
+                this.remove();
+                cityObjects = cityObjects.filter(o => o !== this);
+                document.getElementById('cityCount').textContent = cityObjects.length;
+            };
+            canvas.appendChild(div);
+            cityObjects.push(div);
+            document.getElementById('cityCount').textContent = cityObjects.length;
+        }
+
+        function clearCity() {
+            cityObjects.forEach(o => o.remove());
+            cityObjects = [];
+            document.getElementById('cityCount').textContent = '0';
+        }
+
+        // چند شیء اولیه
+        setTimeout(() => {
+            addCityObject('🏠');
+            addCityObject('🌳');
+            addCityObject('🦸');
+        }, 500);
+
+        // =============================================
+        //  سیستم برنامه‌ساز
+        // =============================================
+        let apps = [];
+        let wallet = 100;
+        let appId = 0;
+
+        function showAppBuilder() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('appSection').classList.add('active');
+            document.getElementById('gameSection').classList.remove('active');
+            renderApps();
+        }
+
+        function hideAppBuilder() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('appSection').classList.remove('active');
+        }
+
+        function showWallet() {
+            alert('💰 موجودی کیف پول:\n$' + wallet + ' USD');
+        }
+
+        function renderApps() {
+            const grid = document.getElementById('appGrid');
+            grid.innerHTML = '';
+            apps.forEach(app => {
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.innerHTML = `
+                    <div class="app-icon">${app.icon}</div>
+                    <div class="app-name">${app.name}</div>
+                    <div class="app-price">${app.price === 0 ? '🎁 رایگان' : '$' + app.price}</div>
+                `;
+                item.onclick = function() {
+                    if (app.price === 0) {
+                        alert('📱 ' + app.name + ' باز شد!');
+                    } else if (wallet >= app.price) {
+                        wallet -= app.price;
+                        document.getElementById('walletAmount').textContent = wallet;
+                        alert('✅ ' + app.name + ' خریداری شد!');
+                        app.price = 0;
+                        renderApps();
+                    } else {
+                        alert('❌ پول کافی نیست!');
+                    }
+                };
+                grid.appendChild(item);
+            });
+            document.getElementById('walletAmount').textContent = wallet;
+        }
+
+        function createApp() {
+            const name = prompt('📝 نام برنامه:');
+            if (!name) return;
+            const icon = prompt('🎨 آیکون (مثلاً 📱):') || '📱';
+            const price = parseFloat(prompt('💰 قیمت (دلار، 0 برای رایگان):')) || 0;
+            apps.push({ id: appId++, name, icon, price });
+            renderApps();
+            alert('✅ برنامه "' + name + '" ساخته شد!');
+        }
+
+        // برنامه‌های پیش‌فرض
+        setTimeout(() => {
+            apps.push({ id: appId++, name: 'ماشین‌حساب', icon: '🧮', price: 0 });
+            apps.push({ id: appId++, name: 'یادداشت‌ها', icon: '📝', price: 2 });
+            apps.push({ id: appId++, name: 'پخش‌کننده', icon: '🎵', price: 5 });
+            renderApps();
+        }, 300);
+
+        // =============================================
+        //  پروژه جدید
+        // =============================================
         function newProject() {
             const status = document.getElementById('status');
             const msg = document.getElementById('statusMessage');
-            const projectName = prompt('📝 لطفاً نام پروژه جدید را وارد کنید:');
-
-            if (projectName === null) {
-                return;
-            }
-
-            if (projectName.trim() === '') {
-                alert('❌ لطفاً یک نام معتبر وارد کنید!');
-                return;
-            }
-
+            const projectName = prompt('📝 نام پروژه جدید:');
+            if (!projectName) return;
             status.style.display = 'block';
-            msg.innerHTML = `⏳ در حال ساخت پروژه "${projectName}"...`;
-
+            msg.innerHTML = `⏳ ساخت پروژه "${projectName}"...`;
             setTimeout(() => {
-                msg.innerHTML = `✅ پروژه "${projectName}" با موفقیت ساخته شد! 🎉`;
-                msg.innerHTML += `<br><span style="font-size:0.85rem; color:#a0a0c0;">🔗 لینک پروژه: /projects/${projectName.toLowerCase().replace(/\s/g, '-')}</span>`;
-            }, 1500);
+                msg.innerHTML = `✅ پروژه "${projectName}" ساخته شد! 🎉`;
+            }, 1200);
         }
 
-        window.onload = function() {
-            console.log('🚀 DANI OS v2.0 Loaded!');
-        };
+        console.log('🚀 DANI OS v3.0 - همه‌چیز در یک فایل!');
     </script>
-
 </body>
-                                                                  </html>
+    </html>
