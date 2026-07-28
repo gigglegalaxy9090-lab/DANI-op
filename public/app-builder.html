@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💰 App Builder Pro</title>
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* ============================================
+           TOP BAR
+           ============================================ */
+        #topBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 30;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        #topBar .title {
+            font-size: 0.9rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #topBar .stats {
+            display: flex;
+            gap: 6px;
+            font-size: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        #topBar .stats span {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .stat-value {
+            color: #ffd200;
+            font-weight: bold;
+        }
+
+        #langBtn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #langBtn:active {
+            transform: scale(0.9);
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
+        #appContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            touch-action: none;
+            cursor: default;
+        }
+
+        /* ============================================
+           APP GRID
+           ============================================ */
+        #appGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            padding: 70px 15px 140px;
+            overflow-y: auto;
+            height: 100vh;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .app-item {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            min-height: 90px;
+            position: relative;
+        }
+
+        .app-item:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .app-item .app-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .app-item .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .app-item .app-name {
+            font-size: 0.55rem;
+            text-align: center;
+            color: #ccc;
+            word-break: break-word;
+            max-width: 70px;
+        }
+
+        .app-item .app-price {
+            font-size: 0.45rem;
+            color: #ffd200;
+            margin-top: 2px;
+            background: rgba(255, 215, 0, 0.08);
+            padding: 1px 8px;
+            border-radius: 8px;
+        }
+
+        .app-item .app-delete {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #e74c3c;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .app-item:hover .app-delete {
+            display: flex;
+        }
+
+        /* ============================================
+           BOTTOM TOOLBAR
+           ============================================ */
+        #bottomToolbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            z-index: 20;
+            padding: 6px 8px 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #bottomToolbar button {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            touch-action: manipulation;
+        }
+
+        #bottomToolbar button:active {
+            transform: scale(0.9);
+        }
+
+        #bottomToolbar button .btn-icon {
+            font-size: 18px;
+        }
+
+        #bottomToolbar button.active {
+            color: #ffd200;
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        /* ============================================
+           APP VIEW
+           ============================================ */
+        #appView {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #1a1a2e;
+            z-index: 40;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #appView.open {
+            display: flex;
+        }
+
+        #appView .app-header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+        }
+
+        #appView .app-header .back-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #appView .app-header .back-btn:active {
+            transform: scale(0.9);
+        }
+
+        #appView .app-header .app-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+
+        #appView .app-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #appView .app-content .app-description {
+            color: #aaa;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        #appView .app-content .app-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        #appView .app-content .app-features .feature-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: all 0.15s;
+        }
+
+        #appView .app-content .app-features .feature-card:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        #appView .app-content .app-features .feature-card .feature-icon {
+            font-size: 24px;
+        }
+
+        #appView .app-content .app-features .feature-card .feature-label {
+            font-size: 0.6rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        #appView .app-content .app-features .feature-card .feature-price {
+            font-size: 0.55rem;
+            color: #ffd200;
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           PURCHASE HISTORY
+           ============================================ */
+        #purchaseHistory {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        #purchaseHistory .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.6rem;
+            color: #aaa;
+        }
+
+        #purchaseHistory .history-item .history-amount {
+            color: #ffd200;
+        }
+
+        /* ============================================
+           ADD APP MODAL
+           ============================================ */
+        #addModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        #addModal.open {
+            display: flex;
+        }
+
+        #addModal .modal-content {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #addModal .modal-content h2 {
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        #addModal .modal-content label {
+            font-size: 0.7rem;
+            color: #aaa;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 3px;
+        }
+
+        #addModal .modal-content input,
+        #addModal .modal-content textarea,
+        #addModal .modal-content select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-size: 0.8rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #addModal .modal-content input:focus,
+        #addModal .modal-content textarea:focus {
+            border-color: #ffd200;
+            background: rgba(255, 215, 0, 0.04);
+        }
+
+        #addModal .modal-content textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        #addModal .modal-content .price-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #addModal .modal-content .price-group input {
+            flex: 1;
+        }
+
+        #addModal .modal-content .price-group select {
+            width: auto;
+            flex: 0.5;
+        }
+
+        #addModal .modal-content .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        #addModal .modal-content .modal-actions button {
+            flex: 1;
+            padding: 8px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        #addModal .modal-content .modal-actions button:active {
+            transform: scale(0.95);
+        }
+
+        #addModal .modal-content .modal-actions .btn-cancel {
+            background: rgba(255, 255, 255, 0.06);
+            color: #aaa;
+        }
+
+        #addModal .modal-content .modal-actions .btn-create {
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            color: #1a1a2e;
+        }
+
+        /* ============================================
+           TOAST
+           ============================================ */
+        #toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            z-index: 60;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 480px) {
+            #appGrid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 10px;
+                padding: 60px 10px 130px;
+            }
+            .app-item {
+                min-height: 80px;
+                padding: 10px 6px;
+            }
+            .app-item .app-icon {
+                font-size: 22px;
+                width: 38px;
+                height: 38px;
+            }
+            .app-item .app-name {
+                font-size: 0.5rem;
+                max-width: 60px;
+            }
+            #bottomToolbar button {
+                font-size: 0.5rem;
+                padding: 3px 8px;
+            }
+            #bottomToolbar button .btn-icon {
+                font-size: 14px;
+            }
+            #addModal .modal-content {
+                padding: 14px;
+                max-width: 100%;
+                margin: 8px;
+            }
+            #appView .app-content .app-features {
+                grid-template-columns: 1fr 1fr;
+            }
+            #appView .app-content .app-features .feature-card .feature-icon {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #appGrid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 8px;
+            }
+            .app-item {
+                min-height: 70px;
+                padding: 8px 4px;
+            }
+            .app-item .app-icon {
+                font-size: 18px;
+                width: 32px;
+                height: 32px;
+            }
+            .app-item .app-name {
+                font-size: 0.4rem;
+                max-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TOP BAR ===== -->
+    <div id="topBar">
+        <div class="title" id="appTitle">💰 App Builder Pro</div>
+        <div class="stats">
+            <span>📦 <span class="stat-value" id="appCount">0</span></span>
+            <span>💰 <span class="stat-value" id="walletUSD">0</span> $</span>
+            <span>💰 <span class="stat-value" id="walletIRR">0</span> IRR</span>
+            <button id="langBtn" onclick="toggleLanguage()">🇬🇧 EN</button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div id="appContainer">
+
+        <!-- ===== APP GRID ===== -->
+        <div id="appGrid"></div>
+
+        <!-- ===== BOTTOM TOOLBAR ===== -->
+        <div id="bottomToolbar">
+            <button class="active" onclick="showHome()">
+                <span class="btn-icon">🏠</span>
+                <span id="lblHome">Home</span>
+            </button>
+            <button onclick="openAddModal()">
+                <span class="btn-icon">➕</span>
+                <span id="lblAdd">Add App</span>
+            </button>
+            <button onclick="showWallet()">
+                <span class="btn-icon">💰</span>
+                <span id="lblWallet">Wallet</span>
+            </button>
+            <button onclick="showSettings()">
+                <span class="btn-icon">⚙️</span>
+                <span id="lblSettings">Settings</span>
+            </button>
+        </div>
+
+        <!-- ===== ADD APP MODAL ===== -->
+        <div id="addModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">📱 Create New App</h2>
+
+                <label id="lblAppName">App Name</label>
+                <input type="text" id="appNameInput" placeholder="My Awesome App">
+
+                <label id="lblAppIcon">Icon (Emoji or Image URL)</label>
+                <input type="text" id="appIconInput" placeholder="🚀 or https://example.com/icon.png">
+
+                <label id="lblAppDescription">Description</label>
+                <textarea id="appDescInput" placeholder="What does your app do?"></textarea>
+
+                <label id="lblAppCategory">Category</label>
+                <select id="appCategoryInput">
+                    <option value="game">🎮 Game</option>
+                    <option value="tool">🛠️ Tool</option>
+                    <option value="social">💬 Social</option>
+                    <option value="education">📚 Education</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="other">📦 Other</option>
+                </select>
+
+                <label id="lblAppColor">Color Theme</label>
+                <input type="color" id="appColorInput" value="#4a9eff">
+
+                <label id="lblAppPrice">Price</label>
+                <div class="price-group">
+                    <input type="number" id="appPriceInput" placeholder="0.00" step="0.01" min="0">
+                    <select id="appCurrencyInput">
+                        <option value="USD">$ USD</option>
+                        <option value="IRR">IRR</option>
+                        <option value="FREE">🎁 Free</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeAddModal()" id="lblCancel">Cancel</button>
+                    <button class="btn-create" onclick="createApp()" id="lblCreate">Create App</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== APP VIEW ===== -->
+        <div id="appView">
+            <div class="app-header">
+                <button class="back-btn" onclick="closeAppView()">← <span id="lblBack">Back</span></button>
+                <div class="app-title" id="viewAppTitle">App Name</div>
+            </div>
+            <div class="app-content" id="viewAppContent">
+                <div class="app-description" id="viewAppDesc">App description goes here...</div>
+                <div class="app-features" id="viewAppFeatures"></div>
+                <div id="purchaseHistory"></div>
+            </div>
+        </div>
+
+        <!-- ===== TOAST ===== -->
+        <div id="toast"></div>
+    </div>
+
+    <script>
+        // ================================================
+        //  LANGUAGE SYSTEM
+        // ================================================
+        let currentLang = 'en';
+
+        const translations = {
+            en: {
+                title: '💰 App Builder Pro',
+                lblHome: 'Home',
+                lblAdd: 'Add App',
+                lblWallet: 'Wallet',
+                lblSettings: 'Settings',
+                modalTitle: '📱 Create New App',
+                lblAppName: 'App Name',
+                lblAppIcon: 'Icon (Emoji or Image URL)',
+                lblAppDescription: 'Description',
+                lblAppCategory: 'Category',
+                lblAppColor: 'Color Theme',
+                lblAppPrice: 'Price',
+                lblCancel: 'Cancel',
+                lblCreate: 'Create App',
+                lblBack: 'Back',
+                noApps: 'No apps yet. Tap "Add App" to create one!',
+                deleteConfirm: 'Delete this app?',
+                settingsTitle: '⚙️ Settings',
+                settingsLang: 'Language',
+                settingsLangEn: 'English',
+                settingsLangFa: 'Persian',
+                settingsReset: 'Reset All Apps',
+                settingsResetConfirm: 'Delete all apps? This cannot be undone!',
+                walletTitle: '💰 Wallet',
+                walletUSD: 'USD Balance',
+                walletIRR: 'IRR Balance',
+                walletAdd: 'Add Money',
+                walletAddUSD: 'Add USD',
+                walletAddIRR: 'Add IRR',
+                walletHistory: 'Transaction History',
+                appOpened: 'App opened',
+                appDeleted: 'App deleted',
+                appCreated: 'App created!',
+                appExists: 'App with this name already exists!',
+                purchaseSuccess: 'Purchase successful!',
+                purchaseFailed: 'Not enough balance!',
+                freeApp: 'Free',
+                buyNow: 'Buy Now',
+                alreadyOwned: '✓ Owned'
+            },
+            fa: {
+                title: '💰 برنامه‌ساز حرفه‌ای',
+                lblHome: 'خانه',
+                lblAdd: 'ساخت برنامه',
+                lblWallet: 'کیف پول',
+                lblSettings: 'تنظیمات',
+                modalTitle: '📱 ساخت برنامه جدید',
+                lblAppName: 'نام برنامه',
+                lblAppIcon: 'آیکون (اموجی یا لینک عکس)',
+                lblAppDescription: 'توضیحات',
+                lblAppCategory: 'دسته‌بندی',
+                lblAppColor: 'رنگ زمینه',
+                lblAppPrice: 'قیمت',
+                lblCancel: 'انصراف',
+                lblCreate: 'ساخت برنامه',
+                lblBack: 'بازگشت',
+                noApps: 'هنوز برنامه‌ای نساختی! دکمه "ساخت برنامه" رو بزن.',
+                deleteConfirm: 'این برنامه حذف شود؟',
+                settingsTitle: '⚙️ تنظیمات',
+                settingsLang: 'زبان',
+                settingsLangEn: 'انگلیسی',
+                settingsLangFa: 'فارسی',
+                settingsReset: 'حذف همه برنامه‌ها',
+                settingsResetConfirm: 'همه برنامه‌ها حذف شوند؟ این کار قابل بازگشت نیست!',
+                walletTitle: '💰 کیف پول',
+                walletUSD: 'موجودی دلار',
+                walletIRR: 'موجودی ریال',
+                walletAdd: 'افزایش موجودی',
+                walletAddUSD: 'افزایش دلار',
+                walletAddIRR: 'افزایش ریال',
+                walletHistory: 'تاریخچه تراکنش‌ها',
+                appOpened: 'برنامه باز شد',
+                appDeleted: 'برنامه حذف شد',
+                appCreated: 'برنامه ساخته شد!',
+                appExists: 'برنامه‌ای با این نام وجود دارد!',
+                purchaseSuccess: 'خرید با موفقیت انجام شد!',
+                purchaseFailed: 'موجودی کافی نیست!',
+                freeApp: 'رایگان',
+                buyNow: 'خرید',
+                alreadyOwned: '✓ خریداری شده'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'fa' : 'en';
+            updateLanguage();
+            const btn = document.getElementById('langBtn');
+            btn.textContent = (currentLang === 'en') ? '🇮🇷 FA' : '🇬🇧 EN';
+            showToast(currentLang === 'en' ? '🌍 Language: English' : '🌍 زبان: فارسی', 800);
+        }
+
+        function updateLanguage() {
+            document.getElementById('appTitle').textContent = t('title');
+            document.getElementById('lblHome').textContent = t('lblHome');
+            document.getElementById('lblAdd').textContent = t('lblAdd');
+            document.getElementById('lblWallet').textContent = t('lblWallet');
+            document.getElementById('lblSettings').textContent = t('lblSettings');
+            document.getElementById('modalTitle').textContent = t('modalTitle');
+            document.getElementById('lblAppName').textContent = t('lblAppName');
+            document.getElementById('lblAppIcon').textContent = t('lblAppIcon');
+            document.getElementById('lblAppDescription').textContent = t('lblAppDescription');
+            document.getElementById('lblAppCategory').textContent = t('lblAppCategory');
+            document.getElementById('lblAppColor').textContent = t('lblAppColor');
+            document.getElementById('lblAppPrice').textContent = t('lblAppPrice');
+            document.getElementById('lblCancel').textContent = t('lblCancel');
+            document.getElementById('lblCreate').textContent = t('lblCreate');
+            document.getElementById('lblBack').textContent = t('lblBack');
+
+            if (document.getElementById('appView').classList.contains('open')) {
+                const title = document.getElementById('viewAppTitle');
+                if (title.textContent.includes('⚙️') || title.textContent.includes('💰')) {
+                    showSettings();
+                } else {
+                    const currentApp = apps.find(a => a.id === selectedAppId);
+                    if (currentApp) openApp(currentApp.id);
+                }
+            }
+            renderApps();
+        }
+
+        // ================================================
+        //  WALLET SYSTEM
+        // ================================================
+        let wallet = {
+            usd: 100,
+            irr: 500000,
+            transactions: []
+        };
+
+        function loadWallet() {
+            try {
+                const saved = localStorage.getItem('appBuilderWallet');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    wallet = data;
+                    return true;
+                }
+            } catch (e) { console.warn('Wallet load failed', e); }
+            return false;
+        }
+
+        function saveWallet() {
+            try {
+                localStorage.setItem('appBuilderWallet', JSON.stringify(wallet));
+            } catch (e) { console.warn('Wallet save failed', e); }
+        }
+
+        function updateWalletDisplay() {
+            document.getElementById('walletUSD').textContent = wallet.usd.toFixed(2);
+            document.getElementById('walletIRR').textContent = wallet.irr.toLocaleString();
+        }
+
+        function addMoney(currency, amount) {
+            if (amount <= 0) {
+                showToast('❌ ' + (currentLang === 'en' ? 'Amount must be greater than 0!' : 'مقدار باید بیشتر از صفر باشد!'),
+                    1200);
+                return;
+            }
+
+            const amountNum = parseFloat(amount);
+            if (currency === 'USD') {
+                wallet.usd += amountNum;
+            } else if (currency === 'IRR') {
+                wallet.irr += amountNum;
+            }
+
+            wallet.transactions.push({
+                date: new Date().toLocaleString(),
+                type: 'deposit',
+                currency: currency,
+                amount: amountNum,
+                description: `Add ${currency} ${amountNum}`
+            });
+
+            saveWallet();
+            updateWalletDisplay();
+            showToast(`✅ ${amountNum} ${currency} ${currentLang === 'en' ? 'added to wallet!' : 'به کیف پول اضافه شد!'}`,
+            1200);
+        }
+
+        function purchaseApp(appId) {
+            const app = apps.find(a => a.id === appId);
+            if (!app) return;
+
+            if (app.owned) {
+                showToast('✅ ' + (currentLang === 'en' ? 'You already own this app!' : 'این برنامه را قبلاً خریده‌ای!'),
+                1000);
+                return;
+            }
+
+            if (app.currency === 'FREE' || !app.price || app.price === 0) {
+                app.owned = true;
+                saveApps();
+                renderApps();
+                if (selectedAppId === appId) openApp(appId);
+                showToast('🎁 ' + (currentLang === 'en' ? 'App added to your library!' : 'برنامه به کتابخانه اضافه شد!'),
+                1200);
+                return;
+            }
+
+            let balance, balanceKey;
+            if (app.currency === 'USD') {
+                balance = wallet.usd;
+                balanceKey = 'usd';
+            } else if (app.currency === 'IRR') {
+                balance = wallet.irr;
+                balanceKey = 'irr';
+            } else {
+                return;
+            }
+
+            if (balance < app.price) {
+                showToast('❌ ' + t('purchaseFailed'), 1500);
+                return;
+            }
+
+            // Deduct from wallet
+            if (app.currency === 'USD') {
+                wallet.usd -= app.price;
+            } else if (app.currency === 'IRR') {
+                wallet.irr -= app.price;
+            }
+
+            app.owned = true;
+            wallet.transactions.push({
+                date: new Date().toLocaleString(),
+                type: 'purchase',
+                currency: app.currency,
+                amount: -app.price,
+                description: `Purchased: ${app.name}`
+            });
+
+            saveWallet();
+            saveApps();
+            updateWalletDisplay();
+            renderApps();
+            if (selectedAppId === appId) openApp(appId);
+            showToast('✅ ' + t('purchaseSuccess'), 1500);
+        }
+
+        // ================================================
+        //  APP DATA
+        // ================================================
+        let apps = [];
+        let appIdCounter = 0;
+        let selectedAppId = null;
+
+        // ================================================
+        //  SAVE / LOAD APPS
+        // ================================================
+        function saveApps() {
+            try {
+                const data = {
+                    apps: apps.map(a => ({ ...a })),
+                    counter: appIdCounter
+                };
+                localStorage.setItem('appBuilderData', JSON.stringify(data));
+            } catch (e) { console.warn('Save failed', e); }
+        }
+
+        function loadApps() {
+            try {
+                const saved = localStorage.getItem('appBuilderData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    apps = data.apps || [];
+                    appIdCounter = data.counter || 0;
+                    return true;
+                }
+            } catch (e) { console.warn('Load failed', e); }
+            return false;
+        }
+
+        // ================================================
+        //  DEFAULT APPS
+        // ================================================
+        function getDefaultApps() {
+            return [{
+                id: 0,
+                name: 'Calculator',
+                icon: '🧮',
+                description: 'Simple calculator with basic operations',
+                category: 'tool',
+                color: '#4a9eff',
+                price: 0,
+                currency: 'FREE',
+                owned: true,
+                features: ['➕ Add', '➖ Subtract', '✖️ Multiply', '➗ Divide']
+            }, {
+                id: 1,
+                name: 'Premium Notes',
+                icon: '📝',
+                description: 'Write and save your notes with cloud sync',
+                category: 'tool',
+                color: '#f39c12',
+                price: 4.99,
+                currency: 'USD',
+                owned: false,
+                features: ['📄 Create Note', '✏️ Edit Note', '☁️ Cloud Sync', '🔒 Password Lock']
+            }, {
+                id: 2,
+                name: 'Music Pro',
+                icon: '🎵',
+                description: 'Play your favorite songs offline',
+                category: 'entertainment',
+                color: '#e74c3c',
+                price: 150000,
+                currency: 'IRR',
+                owned: false,
+                features: ['▶️ Play', '⏸️ Pause', '📂 Playlists', '🎧 Offline Mode']
+            }, {
+                id: 3,
+                name: 'Weather Plus',
+                icon: '🌤️',
+                description: 'Advanced weather with radar',
+                category: 'tool',
+                color: '#3498db',
+                price: 0,
+                currency: 'FREE',
+                owned: true,
+                features: ['🌡️ Temperature', '💨 Wind Speed', '🌧️ Rain Forecast', '📍 Location']
+            }];
+        }
+
+        // ================================================
+        //  RENDER APPS
+        // ================================================
+        function renderApps() {
+            const grid = document.getElementById('appGrid');
+            grid.innerHTML = '';
+
+            if (apps.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText =
+                    'grid-column: 1 / -1; text-align: center; color: #666; padding: 40px 0; font-size: 0.85rem;';
+                emptyMsg.textContent = t('noApps');
+                grid.appendChild(emptyMsg);
+                document.getElementById('appCount').textContent = '0';
+                return;
+            }
+
+            apps.forEach(app => {
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.style.borderColor = app.color || 'rgba(255,255,255,0.06)';
+                item.style.background = app.color ? `${app.color}15` : 'rgba(255,255,255,0.06)';
+
+                const icon = document.createElement('div');
+                icon.className = 'app-icon';
+                if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
+                    const img = document.createElement('img');
+                    img.src = app.icon;
+                    img.alt = app.name;
+                    icon.appendChild(img);
+                } else {
+                    icon.textContent = app.icon || '📦';
+                }
+
+                const name = document.createElement('div');
+                name.className = 'app-name';
+                name.textContent = app.name;
+
+                const price = document.createElement('div');
+                price.className = 'app-price';
+                if (app.owned) {
+                    price.textContent = '✅ ' + (currentLang === 'en' ? 'Owned' : 'خریداری شده');
+                    price.style.color = '#4CAF50';
+                } else if (app.currency === 'FREE' || !app.price || app.price === 0) {
+                    price.textContent = '🎁 ' + (currentLang === 'en' ? 'Free' : 'رایگان');
+                } else {
+                    price.textContent = app.currency === 'USD' ? `$${app.price.toFixed(2)}` :
+                        `${app.price.toLocaleString()} IRR`;
+                }
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'app-delete';
+                deleteBtn.textContent = '✕';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteApp(app.id);
+                };
+
+                item.appendChild(icon);
+                item.appendChild(name);
+                item.appendChild(price);
+                item.appendChild(deleteBtn);
+
+                item.onclick = () => openApp(app.id);
+
+                grid.appendChild(item);
+            });
+
+            document.getElementById('appCount').textContent = apps.length;
+            updateWalletDisplay();
+        }
+
+        // ================================================
+        //  CREATE APP
+        // ================================================
+        function createApp() {
+            const nameInput = document.getElementById('appNameInput');
+            const iconInput = document.getElementById('appIconInput');
+            const descInput = document.getElementById('appDescInput');
+            const catInput = document.getElementById('appCategoryInput');
+            const colorInput = document.getElementById('appColorInput');
+            const priceInput = document.getElementById('appPriceInput');
+            const currencyInput = document.getElementById('appCurrencyInput');
+
+            const name = nameInput.value.trim();
+            const icon = iconInput.value.trim() || '📦';
+            const description = descInput.value.trim() || 'No description provided.';
+            const category = catInput.value;
+            const color = colorInput.value;
+            const price = parseFloat(priceInput.value) || 0;
+            const currency = currencyInput.value;
+
+            if (!name) {
+                showToast('❌ ' + (currentLang === 'en' ? 'Please enter an app name!' : 'لطفاً نام برنامه را وارد کن!'),
+                    1500);
+                return;
+            }
+
+            if (apps.some(a => a.name.toLowerCase() === name.toLowerCase())) {
+                showToast('❌ ' + t('appExists'), 1500);
+                return;
+            }
+
+            const newApp = {
+                id: appIdCounter++,
+                name: name,
+                icon: icon,
+                description: description,
+                category: category,
+                color: color,
+                price: price,
+                currency: currency,
+                owned: (currency === 'FREE' || price === 0),
+                features: getDefaultFeatures(category)
+            };
+
+            apps.push(newApp);
+            saveApps();
+            renderApps();
+            closeAddModal();
+            showToast('✅ ' + t('appCreated'), 1200);
+        }
+
+        function getDefaultFeatures(category) {
+            const features = {
+                game: ['🎮 Play', '🏆 Score', '📊 Levels', '🔄 Restart'],
+                tool: ['🛠️ Tools', '⚙️ Settings', '📋 History', '💾 Save'],
+                social: ['💬 Chat', '👥 Friends', '📸 Share', '❤️ Like'],
+                education: ['📚 Lessons', '📝 Quiz', '📊 Progress', '🏅 Achievements'],
+                entertainment: ['🎬 Watch', '🎵 Listen', '📺 Stream', '⭐ Rate']
+            };
+            return features[category] || ['📦 Feature 1', '📦 Feature 2', '📦 Feature 3', '📦 Feature 4'];
+        }
+
+        // ================================================
+        //  OPEN APP
+        // ================================================
+        function openApp(id) {
+            const app = apps.find(a => a.id === id);
+            if (!app) return;
+
+            selectedAppId = id;
+            const view = document.getElementById('appView');
+            const title = document.getElementById('viewAppTitle');
+            const desc = document.getElementById('viewAppDesc');
+            const features = document.getElementById('viewAppFeatures');
+            const history = document.getElementById('purchaseHistory');
+
+            title.textContent = `${app.icon} ${app.name}`;
+            desc.textContent = app.description;
+
+            features.innerHTML = '';
+            const featureList = app.features || getDefaultFeatures(app.category);
+            featureList.forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'feature-card';
+                card.style.borderColor = app.color || 'rgba(255,255,255,0.06)';
+                card.innerHTML = `
+                    <div class="feature-icon">${f.match(/^.{1,2}/)?.[0] || '📦'}</div>
+                    <div class="feature-label">${f}</div>
+                `;
+                card.onclick = () => {
+                    if (app.owned || app.currency === 'FREE' || app.price === 0) {
+                        showToast(`✅ ${f} (${app.name})`, 1000);
+                    } else {
+                        showToast('🔒 ' + (currentLang === 'en' ? 'Purchase this app to use features!' :
+                            'برای استفاده از امکانات، برنامه را بخر!'), 1200);
+                    }
+                };
+                features.appendChild(card);
+            });
+
+            // Purchase button
+            const purchaseCard = document.createElement('div');
+            purchaseCard.className = 'feature-card';
+            purchaseCard.style.gridColumn = '1 / -1';
+            purchaseCard.style.borderColor = '#ffd200';
+
+            if (app.owned || app.currency === 'FREE' || app.price === 0) {
+                purchaseCard.innerHTML = `
+                    <div class="feature-icon">✅</div>
+                    <div class="feature-label" style="color:#4CAF50; font-weight:bold;">${t('alreadyOwned')}</div>
+                `;
+            } else {
+                const priceDisplay = app.currency === 'USD' ? `$${app.price.toFixed(2)}` :
+                    `${app.price.toLocaleString()} IRR`;
+                purchaseCard.innerHTML = `
+                    <div class="feature-icon">🛒</div>
+                    <div class="feature-label" style="color:#ffd200; font-weight:bold;">${t('buyNow')} - ${priceDisplay}</div>
+                    <div class="feature-price">${currentLang === 'en' ? 'Tap to purchase' : 'برای خرید ضربه بزن'}</div>
+                `;
+                purchaseCard.onclick = () => purchaseApp(app.id);
+            }
+            features.appendChild(purchaseCard);
+
+            // Purchase history
+            history.innerHTML = `<div style="font-size:0.6rem; color:#666; margin-bottom:4px;">${t('walletHistory')}</div>`;
+            const appTransactions = wallet.transactions.filter(t =>
+                t.description && t.description.includes(app.name)
+            );
+            if (appTransactions.length === 0) {
+                history.innerHTML +=
+                    `<div style="font-size:0.55rem; color:#444; text-align:center; padding:8px;">${currentLang === 'en' ? 'No transactions yet' : 'هنوز تراکنشی ثبت نشده'}</div>`;
+            } else {
+                appTransactions.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    const sign = t.amount > 0 ? '+' : '';
+                    item.innerHTML = `
+                        <span>${t.date}</span>
+                        <span class="history-amount">${sign}${t.amount} ${t.currency}</span>
+                    `;
+                    history.appendChild(item);
+                });
+            }
+
+            view.classList.add('open');
+            showToast(`📱 ${app.name} ${t('appOpened')}`, 800);
+        }
+
+        function closeAppView() {
+            document.getElementById('appView').classList.remove('open');
+            selectedAppId = null;
+        }
+
+        // ================================================
+        //  DELETE APP
+        // ================================================
+        function deleteApp(id) {
+            if (!confirm(t('deleteConfirm'))) return;
+            apps = apps.filter(a => a.id !== id);
+            saveApps();
+            renderApps();
+            showToast('🗑️ ' + t('appDeleted'), 1000);
+            if (selectedAppId === id) closeAppView();
+        }
+
+        // ================================================
+        //  WALLET VIEW
+        // ================================================
+        function showWallet() {
+            const view = document.getElementById('appView');
+            const title = document.getElementById('viewAppTitle');
+            const desc = document.getElementById('viewAppDesc');
+            const features = document.getElementById('viewAppFeatures');
+            const history = document.getElementById('purchaseHistory');
+
+            title.textContent = '💰 ' + t('walletTitle');
+            desc.textContent = '';
+
+            features.innerHTML = `
+                <div class="feature-card" style="grid-column: 1 / -1; border-color: #ffd200;">
+                    <div class="feature-icon">💵</div>
+                    <div class="feature-label" style="color:#fff; font-size:0.85rem;">${t('walletUSD')}</div>
+                    <div class="feature-price" style="color:#ffd200; font-size:1.2rem;">$${wallet.usd.toFixed(2)}</div>
+                    <div style="display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+                        <button onclick="addMoney('USD', 10)" style="background:rgba(255,255,255,0.06); border:1px solid #4a9eff; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+$10</button>
+                        <button onclick="addMoney('USD', 50)" style="background:rgba(255,255,255,0.06); border:1px solid #4a9eff; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+$50</button>
+                        <button onclick="addMoney('USD', 100)" style="background:rgba(255,255,255,0.06); border:1px solid #4a9eff; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+$100</button>
+                    </div>
+                </div>
+                <div class="feature-card" style="grid-column: 1 / -1; border-color: #f39c12;">
+                    <div class="feature-icon">💎</div>
+                    <div class="feature-label" style="color:#fff; font-size:0.85rem;">${t('walletIRR')}</div>
+                    <div class="feature-price" style="color:#ffd200; font-size:1.2rem;">${wallet.irr.toLocaleString()} IRR</div>
+                    <div style="display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+                        <button onclick="addMoney('IRR', 50000)" style="background:rgba(255,255,255,0.06); border:1px solid #f39c12; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+50,000</button>
+                        <button onclick="addMoney('IRR', 100000)" style="background:rgba(255,255,255,0.06); border:1px solid #f39c12; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+100,000</button>
+                        <button onclick="addMoney('IRR', 500000)" style="background:rgba(255,255,255,0.06); border:1px solid #f39c12; color:#fff; padding:4px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation;">+500,000</button>
+                    </div>
+                </div>
+            `;
+
+            // Transaction history
+            history.innerHTML = `<div style="font-size:0.6rem; color:#666; margin-bottom:4px;">${t('walletHistory')}</div>`;
+            if (wallet.transactions.length === 0) {
+                history.innerHTML +=
+                    `<div style="font-size:0.55rem; color:#444; text-align:center; padding:8px;">${currentLang === 'en' ? 'No transactions yet' : 'هنوز تراکنشی ثبت نشده'}</div>`;
+            } else {
+                const recent = [...wallet.transactions].reverse().slice(0, 10);
+                recent.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    const sign = t.amount > 0 ? '+' : '';
+                    const typeLabel = t.type === 'deposit' ? '📥' : '🛒';
+                    item.innerHTML = `
+                        <span>${typeLabel} ${t.date}</span>
+                        <span class="history-amount">${sign}${Math.abs(t.amount)} ${t.currency}</span>
+                    `;
+                    history.appendChild(item);
+                });
+            }
+
+            view.classList.add('open');
+        }
+
+        // ================================================
+        //  SETTINGS
+        // ================================================
+        function showSettings() {
+            const view = document.getElementById('appView');
+            const title = document.getElementById('viewAppTitle');
+            const desc = document.getElementById('viewAppDesc');
+            const features = document.getElementById('viewAppFeatures');
+            const history = document.getElementById('purchaseHistory');
+
+            title.textContent = '⚙️ ' + t('settingsTitle');
+            desc.textContent = '';
+            history.innerHTML = '';
+
+            features.innerHTML = `
+                <div class="feature-card" style="grid-column: 1 / -1; border-color: #ffd200;">
+                    <div class="feature-label" style="font-size:0.8rem; color:#fff;">
+                        🌍 ${t('settingsLang')}
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+                        <button onclick="setLang('en')" style="background:${currentLang==='en'?'#ffd200':'rgba(255,255,255,0.06)'}; color:${currentLang==='en'?'#1a1a2e':'#fff'}; border:none; padding:6px 16px; border-radius:8px; cursor:pointer; touch-action:manipulation;">
+                            🇬🇧 ${t('settingsLangEn')}
+                        </button>
+                        <button onclick="setLang('fa')" style="background:${currentLang==='fa'?'#ffd200':'rgba(255,255,255,0.06)'}; color:${currentLang==='fa'?'#1a1a2e':'#fff'}; border:none; padding:6px 16px; border-radius:8px; cursor:pointer; touch-action:manipulation;">
+                            🇮🇷 ${t('settingsLangFa')}
+                        </button>
+                    </div>
+                </div>
+                <div class="feature-card" style="grid-column: 1 / -1; border-color: #e74c3c;">
+                    <div class="feature-label" style="font-size:0.8rem; color:#e74c3c;">
+                        🗑️ ${t('settingsReset')}
+                    </div>
+                    <button onclick="resetAllApps()" style="background:#e74c3c; color:#fff; border:none; padding:6px 20px; border-radius:8px; cursor:pointer; margin-top:8px; touch-action:manipulation;">
+                        🗑️ ${t('settingsReset')}
+                    </button>
+                </div>
+            `;
+
+            view.classList.add('open');
+        }
+
+        function setLang(lang) {
+            if (lang === currentLang) return;
+            currentLang = lang;
+            updateLanguage();
+            const btn = document.getElementById('langBtn');
+            btn.textContent = (currentLang === 'en') ? '🇮🇷 FA' : '🇬🇧 EN';
+            showToast(currentLang === 'en' ? '🌍 Language: English' : '🌍 زبان: فارسی', 800);
+            if (document.getElementById('appView').classList.contains('open')) {
+                showSettings();
+            }
+        }
+
+        function resetAllApps() {
+            if (!confirm(t('settingsResetConfirm'))) return;
+            apps = [];
+            appIdCounter = 0;
+            saveApps();
+            renderApps();
+            closeAppView();
+            showToast('🗑️ ' + t('settingsReset'), 1200);
+        }
+
+        // ================================================
+        //  HOME
+        // ================================================
+        function showHome() {
+            closeAppView();
+            closeAddModal();
+            renderApps();
+        }
+
+        // ================================================
+        //  MODAL
+        // ================================================
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('open');
+            document.getElementById('appNameInput').focus();
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('open');
+        }
+
+        // ================================================
+        //  TOAST
+        // ================================================
+        function showToast(text, duration = 1500) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.style.display = 'block';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+
+        // ================================================
+        //  INIT
+        // ================================================
+        function init() {
+            loadWallet();
+            const loaded = loadApps();
+
+            if (!loaded || apps.length === 0) {
+                apps = getDefaultApps();
+                appIdCounter = apps.length;
+                saveApps();
+            }
+
+            renderApps();
+            updateWalletDisplay();
+
+            const btn = document.getElementById('langBtn');
+            btn.textContent = (currentLang === 'en') ? '🇮🇷 FA' : '🇬🇧 EN';
+
+            console.log('💰 App Builder Pro loaded!');
+            console.log(`📦 ${apps.length} apps available`);
+            console.log(`💰 Wallet: $${wallet.usd.toFixed(2)} | ${wallet.irr.toLocaleString()} IRR`);
+        }
+
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAddModal();
+                closeAppView();
+            }
+        });
+
+        init();
+    </script>
+</body>
+  </html>
